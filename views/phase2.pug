@@ -1,0 +1,37 @@
+extends ./layout.pug
+block content 
+	.row
+		.col.s12.m10.offset-m1.l8.offset-l2#voteIdea
+			.row
+				include table.pug
+			.row
+				ul.collapsible( data-collapsible="accordion")
+					each idea in ideas
+						li.idea(class="col_"+idea.column_position, class="row_"+idea.row_position)
+							.collapsible-header.truncate
+								i= idea.id 
+								span(title=idea.text).ideaTitle=  idea.text								
+								i.right.material-icons.grey-text.text-lighten-2.interested grade
+								i.right.material-icons.grey-text.text-lighten-2.voted done
+								//- span.chip.right=  columnNames[idea.column]
+								//- span.chip.right=  rowNames[idea.line]
+							form.collapsible-body.vote(id="vote_"+idea.id, data-message_id=idea.id)
+								.col.s12
+									.row
+										.input-field.col.s12
+											span= idea.text								
+									each criterion, criteriaId in criteria||{originalite:"Originalité", faisabilité:"Faisabilité"}
+										if criterion.type == "numeric"
+											.row
+												.range-field.col.s12
+													label=criterion.description
+													input.mesarthimSlider( type="range", min="0", max="100", name!="criteria_"+criterion.id+"" id="idea_"+idea.id+"_criteria_"+criterion.id)
+									.row.input-field
+										.switch
+											label.col.s6.m9 Je souhaite être tenu au courant des suites données à cette idée
+												input( type="checkbox", name="criteria_0" value=1 id="idea_"+idea.id+"_criteria_0")
+												span.lever
+									.row
+										button.btn.waves-light.waves-effect.col.s6.offset-s6.m3.offset-m9( type="submit", name="action")
+											i.material-icons.right playlist_add
+											span Voter pour l'idée

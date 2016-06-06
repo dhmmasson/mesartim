@@ -1,0 +1,24 @@
+{
+  "name": "mesartim",
+  "description": "outil de vote sur proposition atelier de créativité",
+  "main": "index.html",
+  "moduleType": [],
+  "authors": [
+    "dhim"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.1",
+    "requirejs": "^2.1.22",
+    "Materialize": "materialize#^0.97.5"
+  }
+}

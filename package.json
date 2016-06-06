@@ -1,0 +1,30 @@
+{
+  "name": "mersartim_server",
+  "version": "1.0.0",
+  "description": "server for the mesartim project",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhmmasson/mesartim.git"
+  },
+  "author": "dhim",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dhmmasson/mesartim/issues"
+  },
+  "homepage": "https://github.com/dhmmasson/mesartim#readme",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "bower": "^1.7.7",
+    "bower-requirejs": "^1.2.0",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.13.4",
+    "jsonwebtoken": "^7.0.0",
+    "multer": "^1.1.0",
+    "mysql": "^2.10.2",
+    "pug": "^2.0.0-alpha8"
+  }
+}

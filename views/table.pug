@@ -1,0 +1,28 @@
+table.striped(id=baseName, data-basename=baseName)
+	tr
+		th.cellDimension.diagonal
+			span= dimensionNames.row 
+			span= dimensionNames.column
+		each columnName, columnIndex in columnNames
+			th.center-align( id=baseName+"_column_"+columnIndex )
+				span.maxWidth= columnName.title 
+	each rowName, rowIndex in rowNames
+		tr
+			th.headerColumn.center-align( id=baseName+"_row_"+rowIndex )= rowName.title
+			each columnName, columnIndex in columnNames
+				td.center-align
+					- radioId=baseName + "_radio_" +  rowIndex + "_" + columnIndex				
+					input.hidden( type="radio"
+								 					name=baseName 
+								 					id=radioId  
+								 					value= rowName.id + "_" + columnName.id
+								 					data-columnName=columnNames[ columnIndex ].title
+								 					data-rowName=rowNames[ rowIndex ].title
+								 					data-columnIndex=columnIndex
+								 					data-rowIndex=rowIndex
+								 				)
+					span( id=baseName + "_label_" +  rowIndex + "_" + columnIndex )
+					//- label( for=radioId
+					//- 				id=baseName + "_label_" +  rowIndex + "_" + columnIndex )
+
+
