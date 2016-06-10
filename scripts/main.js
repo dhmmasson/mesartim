@@ -91,7 +91,7 @@ function processVoteValue( data ) {
     voteElement = $("#idea_" + voteData.message_id ) ;
     voteElement.data( "criteria_"+voteData.criteria_id , voteData.value ) ;    
   }
-$($(".criteriaSorter")[2]).click() 
+  $($(".criteriaSorter")[2]).click() 
 }
 
 
