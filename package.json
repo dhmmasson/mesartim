@@ -19,7 +19,7 @@
   "homepage": "https://github.com/dhmmasson/mesartim#readme",
   "dependencies": {
     "body-parser": "^1.15.0",
-    "bower": "^1.7.7",
+    "bower": "^1.7.9",
     "bower-requirejs": "^1.2.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.13.4",
