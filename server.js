@@ -1,4 +1,4 @@
-var config = require('./config')
+var config = require('./configHeroku')
   , express = require('express')
   , app = express()
   , http = require('http').Server(app)
