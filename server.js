@@ -9,7 +9,7 @@ var config = require('./configHeroku')
   , upload = multer()					// for parsing multipart/form-data
   , jwt = require('jsonwebtoken')
   , mysql = require("mysql") 
-  , mesartimBd = mysql.createConnection( config.database )
+  , mesartimBd = mysql.createPool( config.database )
   , morgan = require('morgan') //debug tool   
   , fs = require('fs')
 
@@ -29,7 +29,7 @@ app.set('secret', config.secret); //set the secret there, why not use config.sec
 app.set('view engine', 'pug');
 
 http.listen( config.port, successListen );
-mesartimBd.connect( callBackMySqlConnexion );
+//mesartimBd.connect( callBackMySqlConnexion );
 
 //================================================================
 //ROUTES

@@ -5,6 +5,7 @@ module.exports =
 						,	password: process.env.SQL_PASSWORD   
 						,	database: process.env.SQL_DATABASE    
 						, multipleStatements: true
+						, connectionLimit : 10
 						}
 , port : process.env.PORT 
 };
