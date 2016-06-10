@@ -11,6 +11,9 @@
     "type": "git",
     "url": "git+https://github.com/dhmmasson/mesartim.git"
   },
+   "engines": {
+    "node": "4.1.1"
+  }, 
   "author": "dhim",
   "license": "MIT",
   "bugs": {

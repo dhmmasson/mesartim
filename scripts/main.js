@@ -4,7 +4,7 @@ requirejs.config({
     socketio: '/socket.io/socket.io.js',
     jquery: '../bower_components/jquery/dist/jquery',
     'jqueryui': '../bower_components/jquery-ui',
-    'materialize': '../../bower_components/materialize/dist/js/materialize',
+    'materialize': '../../bower_components/Materialize/dist/js/materialize',
     'hammerjs':    '../../bower_components/Materialize/js/hammer.min',
     'jquery-hammerjs':'../../bower_components/Materialize/js/jquery.hammer'        
   },
