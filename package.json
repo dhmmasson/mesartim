@@ -25,6 +25,7 @@
     "grunt": "^1.0.1",
     "grunt-sass": "^1.2.0",
     "jsonwebtoken": "^7.0.0",
+    "morgan": "^1.7.0",
     "multer": "^1.1.0",
     "mysql": "^2.10.2",
     "node-sass": "^3.7.0",
