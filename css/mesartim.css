@@ -33,18 +33,26 @@ th.active {
 	text-overflow: ellipsis;
 }
 
+
 .headerColumn{
 	width: 20%;
-
 }
 .maxWidth {
   max-width: 20ex;
-  display: block;
+  display: inline-block;
   margin: auto;
 }
-
+.clickable {
+  cursor : pointer ;
+}
 td, th {
 	border : 1px inset gray ;
+}
+th span {
+  vertical-align: top ;
+}
+th span:first-child{
+  font-weight: bold ;
 }
 td.active {
 	background: rgba(238,110,115,0.5) ;
@@ -52,6 +60,21 @@ td.active {
 
 input.hidden{
 	visibility: hidden ;
+}
+
+
+.popup {
+  position: absolute; 
+  right: 0 ; 
+  font-weight: bold; 
+}
+
+.popup.negatif {
+  color : red ;
+}
+
+.popup.positif {
+  color: lightgreen ;
 }
 
 .diagonal {
@@ -125,7 +148,6 @@ span.mesartimSliderWrapper{
 	display: block;
 }
 span.mesartimFilling {
-	z-index: -10;
 	position: absolute;
 	top : 0 ;
   left: 0; 
@@ -144,6 +166,7 @@ border: none ;
   -webkit-appearance: none;
   width: 100%;
   margin: 0px 0;
+  cursor: ew-resize ; 
 }
 input[type=range].mesarthimSlider:focus {
   outline: none;
@@ -151,7 +174,7 @@ input[type=range].mesarthimSlider:focus {
 input[type=range].mesarthimSlider::-webkit-slider-runnable-track {
   width: 100%;
   height: 32px;
-  cursor: pointer;
+  cursor: ew-resize;
   box-shadow: 1px 1px 3.7px rgba(0, 0, 0, 0.46), 0px 0px 1px rgba(13, 13, 13, 0.46);
   background: rgba(255, 255, 214, 0);
   border-radius: 0px;
@@ -164,7 +187,7 @@ input[type=range].mesarthimSlider::-webkit-slider-thumb {
   width: 19px;
   border-radius: 0px;
   background: rgba(48, 113, 181, 0);
-  cursor: pointer;
+  cursor: ew-resize;
   -webkit-appearance: none;
   margin-top: 0px;
 }
@@ -174,7 +197,7 @@ input[type=range].mesarthimSlider:focus::-webkit-slider-runnable-track {
 input[type=range].mesarthimSlider::-moz-range-track {
   width: 100%;
   height: 32px;
-  cursor: pointer;
+  cursor: ew-resize;
   box-shadow: 1px 1px 3.7px rgba(0, 0, 0, 0.46), 0px 0px 1px rgba(13, 13, 13, 0.46);
   background: rgba(255, 255, 214, 0);
   border-radius: 0px;
@@ -187,12 +210,12 @@ input[type=range].mesarthimSlider::-moz-range-thumb {
   width: 19px;
   border-radius: 0px;
   background: rgba(48, 113, 181, 0);
-  cursor: pointer;
+  cursor: ew-resize;
 }
 input[type=range].mesarthimSlider::-ms-track {
   width: 100%;
   height: 32px;
-  cursor: pointer;
+  cursor: ew-resize;
   background: transparent;
   border-color: transparent;
   color: transparent;
@@ -215,7 +238,7 @@ input[type=range].mesarthimSlider::-ms-thumb {
   width: 19px;
   border-radius: 0px;
   background: rgba(48, 113, 181, 0);
-  cursor: pointer;
+  cursor: ew-resize;
   height: 32px;
 }
 input[type=range].mesarthimSlider:focus::-ms-fill-lower {

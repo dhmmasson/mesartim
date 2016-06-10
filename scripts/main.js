@@ -3,6 +3,7 @@ requirejs.config({
     requirejs: '../bower_components/requirejs/require',
     socketio: '/socket.io/socket.io.js',
     jquery: '../bower_components/jquery/dist/jquery',
+    'jqueryui': '../bower_components/jquery-ui',
     'materialize': '../../bower_components/materialize/dist/js/materialize',
     'hammerjs':    '../../bower_components/Materialize/js/hammer.min',
     'jquery-hammerjs':'../../bower_components/Materialize/js/jquery.hammer'        
@@ -11,6 +12,7 @@ requirejs.config({
 
   ],
   shim: {
+   
     socketio: {
       exports: 'io'
     }, 
@@ -19,14 +21,19 @@ requirejs.config({
     },
     'jquery': {
       exports: '$'
+    },
+     "jqueryui": {
+      //exports: "$",
+      deps: ['jquery']
     }
   }
 });
 
 // Start the main app logic.
-requirejs(['jquery', 'socketio', 'materialize', 'util'],
-  function   ($, io, mdl, util) {
+requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
+  function   (io, mdl, util, ui) {
     //  var socket = io();
+    console.log(ui)
     token = localStorage.getItem('token') || null ; 
     since = 0 
 
@@ -59,12 +66,33 @@ requirejs(['jquery', 'socketio', 'materialize', 'util'],
         $("form.vote").submit( voteIdea ) ;
         $("input.mesarthimSlider").mesartimSlider() 
         restoreVote() 
+      } else if ( page = "rank") {
+        addVoteValue()
+        $("input.mesarthimSlider").mesartimSlider() 
+        $(".ideas").mesartimSortable(".criteriaSorter")
+        
       }
-
-
     }
 
 
+
+
+
+//================================================================
+// Rank page
+//================================================================
+function addVoteValue() {
+  $.get("/api/annotations/mine", processVoteValue ) ;
+}
+function processVoteValue( data ) {
+  console.log( data )
+  for (var i = 0; i < data.result.length; i++) {
+    voteData = data.result[i] ;    
+    voteElement = $("#idea_" + voteData.message_id ) ;
+    voteElement.data( "criteria_"+voteData.criteria_id , voteData.value ) ;    
+  }
+$($(".criteriaSorter")[2]).click() 
+}
 
 
 
@@ -225,13 +253,15 @@ function getOwnIdea( since ) {
      since : since }
      , processGetOwnIdea ) ;
 }
-function processGetOwnIdea( res ) {    
+function processGetOwnIdea( res ) { 
+letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"  
   if( res.success ) {
     console.log( res )
     ownIdea = $("#ownIdea")
     for( var i = 0 ; i < res.result.length ; i++ ) {
       var item = res.result[i]
-      , newBadge = $("<span class='chip green right'>").text("new") 
+        , newBadge = $("<span class='chip green right'>").text("new") 
+
       ownIdea.prepend( 
         $("<li>" )
         .addClass("collection-item")
@@ -239,8 +269,16 @@ function processGetOwnIdea( res ) {
         .addClass("yellow lighten-"+ (3 + item.id % 2))
         .text( item.text )              
         .append( newBadge )
-        .append( $("<span class='chip right'>").text( columnNames[item.column_position].title ) )                                
-        .append( $("<span class='chip right'>").text( rowNames[item.row_position].title ) )  
+        //.append( $("<span class='chip right'>").text( columnNames[item.column_position].title ) )                                
+        .append( $("<span class='chip right'>")
+            .addClass("chip right clickable")
+            .text( letters[item.row_position] + ( item.column_position + 1 ))  
+            .attr( "title", rowNames[item.row_position].title  + "/" + columnNames[item.column_position].title )
+            .data( "category", $("#grille_radio_"+item.row_position+"_"+ item.column_position )) 
+            .click( function(e) { $(e.target).data( "category").change() })
+                )
+
+            
 
         ) ;
       newBadge.fadeOut(5000, function() { $(this).remove(); })

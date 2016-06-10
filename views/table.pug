@@ -1,3 +1,4 @@
+- letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
 table.striped(id=baseName, data-basename=baseName)
 	tr
 		th.cellDimension.diagonal
@@ -5,12 +6,15 @@ table.striped(id=baseName, data-basename=baseName)
 			span= dimensionNames.column
 		each columnName, columnIndex in columnNames
 			th.center-align( id=baseName+"_column_"+columnIndex )
-				span.maxWidth= columnName.title 
+				span=  (1+columnIndex) +": "
+				span.maxWidth= columnName.title 				
 	each rowName, rowIndex in rowNames
 		tr
-			th.headerColumn.center-align( id=baseName+"_row_"+rowIndex )= rowName.title
+			th.headerColumn.center-align( id=baseName+"_row_"+rowIndex )
+				span=letters[rowIndex] +": "
+				span=rowName.title
 			each columnName, columnIndex in columnNames
-				td.center-align
+				td.center-align.clickable
 					- radioId=baseName + "_radio_" +  rowIndex + "_" + columnIndex				
 					input.hidden( type="radio"
 								 					name=baseName 

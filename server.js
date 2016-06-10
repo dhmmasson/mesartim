@@ -47,7 +47,8 @@ apiRoutes.post( '/message/new', upload.array(), addMessage ) ;
 apiRoutes.post( '/message/:id/annotate',  upload.array(), annotateMessage );
 apiRoutes.get(  '/message/id/:id', getMessageById );
 
-apiRoutes.get( '/annotations', getAnnotations ) ;
+apiRoutes.get( '/annotations/all', getAnnotations ) ;
+apiRoutes.get( '/annotations/mine', getAnnotationsFromUser ) ;
 
 apiRoutes.get( '/message/mine', getAllMessageFromUser );
 apiRoutes.get( '/message/all', proxyGetAllMessageFromSeance );
@@ -62,6 +63,7 @@ app.use('/api', apiRoutes);
 app.use( '/vote', checkAuthentication, getVotePage )
 app.use( '/generation', checkAuthentication, getSubmissionPage )
 app.use( '/login', getLogin )
+app.use( '/rank', checkAuthentication, getRankPage )
 
 
 //SQL
@@ -125,6 +127,27 @@ function processGetSubmissionPage( requete, reponse, columnNames, rowNames ) {
 
 
 
+
+//================================================================
+//Get Rank page
+//================================================================
+function getRankPage( requete, reponse ) {
+	getAllInfoSeance( requete, reponse, processGetRankPage )
+}
+function processGetRankPage( requete, reponse, data ){
+	data.baseName = "grille"
+	reponse.render( "phase3", data ) ;
+}
+
+function getAnnotationsFromUser( requete, reponse ) {
+	mesartimBd.query( sqlGetVoteByUser, requete.decoded.user.id, wrapProcess( processGetAnnotationsFromUser, printAndSkip, requete, reponse ))
+}
+function processGetAnnotationsFromUser( requete, reponse, data ) {
+	reponse.json( {
+		success:true
+	, result : data 
+	})
+}
 //================================================================
 //Get Vote Page
 //================================================================
