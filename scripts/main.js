@@ -53,28 +53,31 @@ requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
     } else {
 
       //pour generation et vote 
-      getSeanceColumnAndRows()    ;
-      $('input[type="radio"]').change( categoryChosen )
-      $("input.hidden").parents("td").click( propagateCellClickToInput ) ;
-      if( page == "generation"){
-        //generation
-        $("#addIdea").submit( addIdea )
-        getOwnIdea(0)
-      } else if( page == "vote"){
-        //vote
-        getAllIdeas(0) ;
-        $("form.vote").submit( voteIdea ) ;
-        $("input.mesarthimSlider").mesartimSlider() 
-        restoreVote() 
-      } else if ( page = "rank") {
-        addVoteValue()
-        $("input.mesarthimSlider").mesartimSlider() 
-        $(".ideas").mesartimSortable(".criteriaSorter")
-        
-      }
+      getSeanceColumnAndRows( init ) ;
     }
 
+function init() {
 
+  $('input[type="radio"]').change( categoryChosen )
+  $("input.hidden").parents("td").click( propagateCellClickToInput ) ;
+  if( page == "generation"){
+    //generation
+    $("#addIdea").submit( addIdea )
+    getOwnIdea(0)
+  } else if( page == "vote"){
+    //vote
+    getAllIdeas(0) ;
+    $("form.vote").submit( voteIdea ) ;
+    $("input.mesarthimSlider").mesartimSlider() 
+    restoreVote() 
+  } else if ( page = "rank") {
+    addVoteValue()
+    $("input.mesarthimSlider").mesartimSlider() 
+    $(".ideas").mesartimSortable(".criteriaSorter")
+    
+  }
+
+}
 
 
 
@@ -126,16 +129,18 @@ function voteIdea( e ){
   $.post("/api/message/"+ message_id +"/annotate", { criteria : criteria }, processVoteIdea ) ;
 }
 function restoreVote() {
-  $.get("/api/annotations", processRestoreVote)
+  $.get("/api/annotations/mine", processRestoreVote)
 
 
 }
 function processRestoreVote( data ) {
   console.log( data )
   for( var i = 0 ; i < data.result.length ; i++ ) {
-    vote = data.result[i] ;
-    $slider = $("#idea_" + vote.message_id + "_criteria_" + vote.criteria_id )
-    console.log( $slider )
+    var vote = data.result[i] 
+      , $slider = $("#idea_" + vote.message_id + "_criteria_" + vote.criteria_id )
+      , $header= $slider.parents("li.idea").addClass("voted")
+       
+    if( vote.criteria_id == 0 ) $header.addClass("interested")    
     $slider.val( vote.value )
     $slider.change() 
   }
@@ -290,12 +295,14 @@ letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
 }
 
     //all the necessary info are in the token
-    function getSeanceColumnAndRows()  {
-      $.get("/api/seance/names", processSeanceColumnAndRows)
+    function getSeanceColumnAndRows( next )  {
+      $.get("/api/seance/names", ( data ) => {
+        processSeanceColumnAndRows( data )
+        next()
+      })
     }
     function processSeanceColumnAndRows( data ) {
       if( data.success ) {
-        console.log( data )
         rowNames = data.rowNames ; 
         columnNames = data.columnNames ; 
       }

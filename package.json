@@ -11,9 +11,9 @@
     "type": "git",
     "url": "git+https://github.com/dhmmasson/mesartim.git"
   },
-   "engines": {
+  "engines": {
     "node": "4.1.1"
-  }, 
+  },
   "author": "dhim",
   "license": "MIT",
   "bugs": {
@@ -33,6 +33,7 @@
     "multer": "^1.1.0",
     "mysql": "^2.10.2",
     "node-sass": "^3.7.0",
-    "pug": "^2.0.0-alpha8"
+    "pug": "^2.0.0-alpha8",
+    "socketio": "^1.0.0"
   }
 }

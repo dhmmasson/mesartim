@@ -2,7 +2,7 @@ var config = require('./configHeroku')
   , express = require('express')
   , app = express()
   , http = require('http').Server(app)
-  //, io = require('socket.io')(http)
+  , io = require('socket.io')(http)
   , cookieParser = require('cookie-parser')
   , bodyParser = require('body-parser')
   , multer = require('multer') // v1.0.5
@@ -66,7 +66,48 @@ app.use( '/login', getLogin )
 app.use( '/rank', checkAuthentication, getRankPage )
 
 
+function mesartimBd_pooled_qu () {
+	var _arguments = arguments ; 
+	mesartimBd.getConnection(function(err, connection) {
+		if(err) {
+			console.error( "no connection to the db") ;
+			return -1 
+		}
+		console.log( _arguments )
+		connection.query.apply( connection, _arguments )
+	})
+}
+mesartimBd.on('connection', function (connection) {
+  console.log( "connection to database" ) ; 
+});
 //SQL
+
+
+function wrapProcess( callBackSuccess, callBackError, ...args ) {
+	return ( err, data ) => { 
+		if( err ) 
+			callBackError.apply(this, (args.unshift( err ), args ) ) ; 
+		else 
+			callBackSuccess.apply( this, (args.push( data ), args )  ) ;
+	} 
+}
+
+
+
+function mesartimBd_pooled_query() {
+	//some arguments...
+	var _arguments = [].splice.call(arguments,0)
+	//first argument is the request object
+ 	  , requete = _arguments.shift() ;
+	mesartimBd.getConnection( (err, connection ) => {
+		if( err ) return console.error("can't get a connection") ;
+		requete.sqlConnection = connection ; 
+		return connection.query.apply( connection, _arguments) ;
+	} )
+}
+
+
+
 
 var sqlAddMessage = 'INSERT INTO message ( participation_id, text, `row_id`, `column_id` ) VALUES ( ?, ?, ?, ? )'
   , sqlGetMessageId = 'SELECT message.id' 
@@ -114,7 +155,6 @@ function getSubmissionPage( requete, reponse ) {
 	getGridHeaders( requete, reponse, processGetSubmissionPage )	
 }
 function processGetSubmissionPage( requete, reponse, columnNames, rowNames ) {
-	console.log(  requete.columnNames, requete.rowNames )
 	reponse.render(   "phase1.pug", 
 		{ token : requete.token
 		, columnNames : requete.columnNames
@@ -135,14 +175,16 @@ function getRankPage( requete, reponse ) {
 	getAllInfoSeance( requete, reponse, processGetRankPage )
 }
 function processGetRankPage( requete, reponse, data ){
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	data.baseName = "grille"
 	reponse.render( "phase3", data ) ;
 }
 
 function getAnnotationsFromUser( requete, reponse ) {
-	mesartimBd.query( sqlGetVoteByUser, requete.decoded.user.id, wrapProcess( processGetAnnotationsFromUser, printAndSkip, requete, reponse ))
+	mesartimBd_pooled_query(requete, sqlGetVoteByUser, requete.decoded.user.id, wrapProcess( processGetAnnotationsFromUser, printAndSkip, requete, reponse ))
 }
 function processGetAnnotationsFromUser( requete, reponse, data ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( {
 		success:true
 	, result : data 
@@ -157,6 +199,7 @@ function getVotePage( requete, reponse ) {
 	getAllInfoSeance( requete, reponse, renderVotePage2 )
 }
 function renderVotePage2( requete, reponse, data ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()	
 	data.baseName = "grille"
 	reponse.render( "phase2", data ) ;
 }
@@ -170,6 +213,7 @@ function getSeanceNames( requete, reponse ) {
 	getGridHeaders( requete, reponse, processSeanceNames )
 }
 function processSeanceNames( requete, reponse, dimensionNames, columnNames, rowNames  ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( 
 	  { success:true
 	  , dimensionNames : dimensionNames 
@@ -186,12 +230,12 @@ function getGridHeaders( requete, reponse, callback ) {
 }
 function getColumnNames( callback, seanceId, requete, reponse ) {
 	var values = { seance_id : seanceId }
-	mesartimBd.query( sqlColumName, values, wrapProcess( getRowNames, printAndSkip, callback, seanceId, requete, reponse ) )
+	mesartimBd_pooled_query(requete, sqlColumName, values, wrapProcess( getRowNames, printAndSkip, callback, seanceId, requete, reponse ) )
 }
 function getRowNames( callback, seanceId, requete, reponse, result ) {
 	var values = { seance_id : seanceId }
 		  
-	mesartimBd.query( sqlRowName, values, wrapProcess( cleanRowAndColumn, printAndSkip, callback, requete, reponse, result ) )
+	mesartimBd_pooled_query(requete, sqlRowName, values, wrapProcess( cleanRowAndColumn, printAndSkip, callback, requete, reponse, result ) )
 }
 function cleanRowAndColumn( callback, requete, reponse, _columnNames, _rowNames) {
 	var columnNames = []
@@ -227,11 +271,11 @@ function getAllMessageFromSeance( requete, reponse, callback ) {
 	var participation = requete.decoded.participation 
 	  , since = requete.query.since || 0 
 		, values = [ since, participation.seance_id ] 
-	query = mesartimBd.query( sqlAllMessageSinceFromSeance, values, wrapProcess( callback, printAndSkip, requete, reponse) ) ; 		
+	query = mesartimBd_pooled_query(requete, sqlAllMessageSinceFromSeance, values, wrapProcess( callback, printAndSkip, requete, reponse) ) ; 		
 	
 }
 function processGetAllMessageFromSeance( requete, reponse, rows ) {
-	
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( 
 		{ success : true 
 		, result : rows }
@@ -250,9 +294,10 @@ function addMessage( requete, reponse ) {
 	  ,	message = requete.body.content
 	  , coords = requete.body.grille.split("_") 
 	  , values = [ participation.id, message, coords[0], coords[1] ]
-	mesartimBd.query( sqlAddMessage, values, wrapProcess( processAddMessage, printAndSkip, requete, reponse ) ) ; 
+	mesartimBd_pooled_query(requete, sqlAddMessage, values, wrapProcess( processAddMessage, printAndSkip, requete, reponse ) ) ; 
 }
 function processAddMessage( requete, reponse, result ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( { success: true  
 								, result : result.insertId } )	
 }
@@ -260,23 +305,25 @@ function processAddMessage( requete, reponse, result ) {
 //get all messages Id for a seances
 function getMessagesBySeance( requete, reponse ) {
 	var values = {seance_id : requete.params.id || requete.decoded.participation.seance_id}	
-  mesartimBd.query( 	sqlGetMessageId, values , wrapProcess( processGetMessagesBySeance, printAndSkip, requete, reponse )
+  mesartimBd_pooled_query(requete, 	sqlGetMessageId, values , wrapProcess( processGetMessagesBySeance, printAndSkip, requete, reponse )
 	);	
 }
 function processGetMessagesBySeance( requete, reponse, rows ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( rows )	
 }
 
 //get message by Id
 function getMessageById( requete, reponse ) {
 	var values = {id : requete.params.id}	
-	mesartimBd.query( { sql : 'SELECT * FROM message WHERE ?'
+	mesartimBd_pooled_query(requete, { sql : 'SELECT * FROM message WHERE ?'
 			   , values :  values
 			   } 
 			   , wrapProcess( processGetMessageById, printAndSkip, requete, reponse )
 	);	
 }
 function processGetMessageById( requete, reponse, rows ) {
+		if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( { success: true  
 							  , result : rows } )	
 }
@@ -286,10 +333,11 @@ function getAllMessageFromUser( requete, reponse ) {
 	var participation = requete.decoded.participation 
 	  , since = requete.query.since || 0 
 		, values = [ since, participation.id ] 
-	query = mesartimBd.query( sqlAllMessageSinceFromUser, values, wrapProcess( processGetAllMessageFromUser, printAndSkip, requete, reponse) ) ; 	
+	query = mesartimBd_pooled_query(requete, sqlAllMessageSinceFromUser, values, wrapProcess( processGetAllMessageFromUser, printAndSkip, requete, reponse) ) ; 	
 
 }
 function processGetAllMessageFromUser( requete, reponse, rows ) {
+		if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( 
 		{ success : true 
 		, result : rows }
@@ -309,11 +357,12 @@ function annotateMessage( requete, reponse ) {
 	  for( var i = 0 ; i < criteria.length ; i++ ) {
 	  	values.push( [ user.id, criteria[i].message_id, criteria[i].criteria_id, criteria[i].value ] )
 	  }
-	  console.log( values )
-	  query = mesartimBd.query( { sql : sql, values :  [values] }, wrapProcess( processAnnotateMessage, printAndSkip, requete, reponse ) ) ; 
-	  console.log( query.sql )
+	  
+	  mesartimBd_pooled_query(requete, { sql : sql, values :  [values] }, wrapProcess( processAnnotateMessage, printAndSkip, requete, reponse ) ) ; 
+	  
 }
 function processAnnotateMessage( requete, reponse, result ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 		reponse.json( {
 			success: true
 		, result : result } ) ;
@@ -327,9 +376,10 @@ function getAnnotationSeance( callback, requete, reponse ) {
 	  + ' ' + 'WHERE ?'
 	  , value = { seance_id : participation.seance_id }
 
-	mesartimBd.query( sql, value, wrapProcess( callback, printAndSkip, requete, reponse ))
+	mesartimBd_pooled_query(requete, sql, value, wrapProcess( callback, printAndSkip, requete, reponse ))
 }
 function processGetAnnotationSeance( requete, reponse, rows ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( {
 		success: true
 	, result : rows } )
@@ -338,10 +388,11 @@ function processGetAnnotationSeance( requete, reponse, rows ) {
 function getAnnotations( requete, reponse ) {
 	var user = requete.decoded.user
 	  , values = [ user.id ]
-	mesartimBd.query( sqlGetVoteByUser, values, wrapProcess( processGetAnnotation, printAndSkip, requete, reponse ))
+	mesartimBd_pooled_query(requete, sqlGetVoteByUser, values, wrapProcess( processGetAnnotation, printAndSkip, requete, reponse ))
 }
 
 function processGetAnnotation( requete, reponse, data ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 		reponse.json( {
 		success: true
 	, result : data } )
@@ -353,7 +404,7 @@ function processGetAnnotation( requete, reponse, data ) {
 //get all participants for a seance
 function getParticipantsBySeance( requete, reponse ) {
 	var values = {seance_id : requete.params.id || requete.decoded.participation.seance_id}	
-	mesartimBd.query( 	{ sql : 'SELECT user.*' 
+	mesartimBd_pooled_query(requete, 	{ sql : 'SELECT user.*' 
 				+ ' ' + 'FROM user'
 				+ ' ' + 'JOIN participation ON participation_id 	= participation.id'
 				//+ ' ' + 'JOIN seance        ON seance_id 		= seance.id'  
@@ -364,6 +415,7 @@ function getParticipantsBySeance( requete, reponse ) {
 	);	
 }
 function processGetParticipantsBySeance( requete, reponse, reponse ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( rows )	
 }
 
@@ -379,7 +431,7 @@ function getAllInfoSeance( requete, reponse, callback  ) {
 		, values = [{seance_id : seanceId }, {seance_id : seanceId }, 0, seanceId , {seance_id : seanceId }]
 
 	
-	query = mesartimBd.query( sql, values, wrapProcess( processGetAllInfoSeance, printAndSkip, requete, reponse,callback  ))
+	query = mesartimBd_pooled_query(requete, sql, values, wrapProcess( processGetAllInfoSeance, printAndSkip, requete, reponse,callback  ))
 	
 }
 function processGetAllInfoSeance( requete, reponse, callback, data ) {
@@ -427,7 +479,7 @@ function register( requete, reponse ) {
 
 //Update or create User
 function updateOrCreateUser( requete, reponse ){
-	mesartimBd.query( 'SELECT * FROM user WHERE email = ?',  requete.user.email 
+	mesartimBd_pooled_query(requete, 'SELECT * FROM user WHERE email = ?',  requete.user.email 
 			 , wrapProcess( processUpdateOrCreateUser, printAndSkip, requete, reponse ) ) ;	
 }
 
@@ -445,7 +497,7 @@ function processUpdateOrCreateUser( requete, reponse, rows ) {
 }
 
 function createUser( requete, reponse ) {
-	mesartimBd.query( 'INSERT INTO user SET ?', requete.user
+	mesartimBd_pooled_query(requete, 'INSERT INTO user SET ?', requete.user
 		     , wrapProcess( processNewUser, printAndSkip, requete, reponse )
 	)	
 }
@@ -460,12 +512,13 @@ function processNewUser( requete, reponse, err, result ){
 	createParticipation( requete, reponse ) ; 
 }
 function createParticipation( requete, reponse ) {
-	mesartimBd.query( 'INSERT INTO participation SET ? ON DUPLICATE KEY UPDATE lastlogin=NOW();', requete.participation
+	mesartimBd_pooled_query(requete, 'INSERT INTO participation SET ? ON DUPLICATE KEY UPDATE lastlogin=NOW();', requete.participation
 			 , wrapProcess( processNewParticapation, printAndSkip, requete, reponse )		
 	)
 }
 
 function processNewParticapation( requete, reponse, result ){
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	requete.participation.id = result.insertId
 	//Should rather send a token 
 	token=jwt.sign( { user : requete.user, participation : requete.participation }
@@ -479,16 +532,18 @@ function processNewParticapation( requete, reponse, result ){
 //List séances 
 
 function requestListSeances( requete, reponse ){
-	mesartimBd.query( 'SELECT id, titre FROM seance WHERE date >= NOW()' 
+	mesartimBd_pooled_query(requete, 'SELECT id, titre FROM seance WHERE date >= NOW()' 
 			 , wrapProcess( processRequestListSeances, printAndSkip, requete, reponse)
 		);	
 }
 
 function processRequestListSeances(requete, reponse, rows ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json( rows );
 }
 
 function tokenValid( requete, reponse ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	reponse.json({ success : true 
 							, token : requete.token 
 							, user : requete.decoded.user 
@@ -506,6 +561,7 @@ function wrapProcess( callBackSuccess, callBackError, ...args ) {
 }
 
 function printAndSkip ( err ) { 
+	if( requete.sqlConnection ) requete.sqlConnection.release()
 	console.error( "\033[31m")
 	console.error( err ) 
 	console.error( "\033[0m")
