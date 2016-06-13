@@ -27,6 +27,7 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.13.4",
     "grunt": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
     "grunt-sass": "^1.2.0",
     "jsonwebtoken": "^7.0.0",
     "morgan": "^1.7.0",

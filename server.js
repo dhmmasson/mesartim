@@ -63,6 +63,7 @@ app.use('/api', apiRoutes);
 app.use( '/vote', checkAuthentication, getVotePage )
 app.use( '/generation', checkAuthentication, getSubmissionPage )
 app.use( '/login', getLogin )
+app.use( '/', getLogin )
 app.use( '/rank', checkAuthentication, getRankPage )
 
 

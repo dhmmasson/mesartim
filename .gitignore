@@ -2,3 +2,6 @@ config.js
 node_modules
 bower_components
 .env
+sass/components
+sass/materialize.scss
+css/*

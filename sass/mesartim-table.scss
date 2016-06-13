@@ -1,8 +1,8 @@
 
 .diagonal {
-    background: -moz-linear-gradient(to top right,  hsla(0,0%,100%,1) 0%, hsla(0,0%,100%,1) 50%, #f2f2f2 50%, #f2f2f2 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(to top right,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,#f2f2f2 50%,#f2f2f2 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to top right,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,#f2f2f2 50%,#f2f2f2 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    background: -moz-linear-gradient(to top right,  hsla(0,0%,100%,1) 0%, hsla(0,0%,100%,1) 50%, $table-striped-color 50%, $table-striped-color 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(to top right,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,$table-striped-color 50%,$table-striped-color 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to top right,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,$table-striped-color 50%,$table-striped-color 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
 
 .cellDimension {

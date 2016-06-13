@@ -12,7 +12,9 @@ hr.row {
 .relative {
 	position : relative ;
 }
-
+.img-logo {
+  height : 64px ; 
+}
 th:not(.active) {
 	font-weight: normal;
 }
