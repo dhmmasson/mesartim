@@ -1,0 +1,53 @@
+
+.diagonal {
+    background: -moz-linear-gradient(to top right,  hsla(0,0%,100%,1) 0%, hsla(0,0%,100%,1) 50%, #f2f2f2 50%, #f2f2f2 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(to top right,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,#f2f2f2 50%,#f2f2f2 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to top right,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,#f2f2f2 50%,#f2f2f2 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+
+.cellDimension {
+  position: relative;
+}
+.cellDimension span:first-child{
+    position: absolute;
+    left: 5px;
+    bottom: 5px;    
+    vertical-align: bottom; ;
+    text-align: left;
+}
+.cellDimension span:last-child{
+  
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    vertical-align: top ;
+    text-align: right;  
+}
+
+.headerColumn{
+  width: 20%;
+}
+.maxWidth {
+  max-width: 20ex;
+  display: inline-block;
+  margin: auto;
+}
+.clickable {
+  cursor : pointer ;
+}
+td, th {
+  border : 1px inset gray ;
+}
+th span {
+  vertical-align: top ;
+}
+th span:first-child{
+  font-weight: bold ;
+}
+td.active {
+  background: rgba(238,110,115,0.5) ;
+}
+
+input.hidden{
+  visibility: hidden ;
+}

@@ -1,0 +1,80 @@
+/*@import "components/variables";*/
+@import "mesartim-sliders"
+@import "mesartim-table"
+
+.header{
+  margin-bottom: 1rem ;
+}
+hr.row {
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+  border-style: inset;
+  border-top: none;
+}
+.relative {
+  position : relative ;
+}
+.img-logo {
+  height : 64px ; 
+}
+th:not(.active) {
+  font-weight: normal;
+}
+th.active {
+  font-weight: bold;
+}
+.doubleButton {
+
+  border-right: 1px inset hsla(0,0%,80%,0.3);
+  margin-right: 5px;
+  padding-right: 10px;
+
+}
+
+.ellipsis{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.popup {
+  position: absolute; 
+  right: 0 ; 
+  font-weight: bold; 
+}
+
+.popup.negatif {
+  color : red ;
+}
+
+.popup.positif {
+  color: lightgreen ;
+}
+
+
+.idea.voted .voted {
+  color: green !important ;
+  background: lightblue;
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+}
+.idea.interested .interested {
+  color: yellow !important ;
+  background: rgba(255,0,0,0.3);
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+}
+.ideaTitle {
+  width: calc(100% - 12rem);
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+    
+}
+
+
+
+
+
