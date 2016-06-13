@@ -16,8 +16,10 @@ module.exports = function(grunt) {
                  , dest: 'sass/'} ]
       , options: 
         { process: function (content, srcpath) {
-          if( srcpath.match("materialize.scss")) 
+          if( srcpath.match("materialize.scss")) { 
+            console.log("copy materialize.scss" ); 
             return content.replace('@import "components/variables";', '@import "ideaValuationVariables";\n@import "components/variables";');
+          }
           return content 
         } }
       

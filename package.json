@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "node --harmony_rest_parameters --harmony_destructuring server.js",
-    "postinstall": "bower install"
+    "postinstall": "bower install && grunt "
   },
   "repository": {
     "type": "git",
