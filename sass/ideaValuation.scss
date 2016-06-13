@@ -57,19 +57,29 @@ hr.row {
 .popup.positif {
   color: lightgreen ;
 }
+.idea {
+  .voted, .interested{
+    color : color("grey", "lighten-2");
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;    
+    background:rgb( 250, 250, 250 ) ;
+    color: rgba(230,230,230,1);
+    text-shadow: 1px 1px 1px rgba(255,255,255,0.3), -1px -1px 2px rgba(0,0,0,0.3);
 
+  }
+}
 
 .idea.voted .voted {
-  color: green !important ;
-  background: lightblue;
-  border-bottom-left-radius: 50%;
-  border-bottom-right-radius: 50%;
+  color: $success-color !important ;
+   text-shadow: none ;
+   font-weight: bold ;
+
+  ;
 }
 .idea.interested .interested {
-  color: yellow !important ;
-  background: rgba(255,0,0,0.3);
-  border-bottom-left-radius: 50%;
-  border-bottom-right-radius: 50%;
+  color: $primary-color !important ;
+  text-shadow: none ;
+
 }
 .ideaTitle {
   width: calc(100% - 12rem);

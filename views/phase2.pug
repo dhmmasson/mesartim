@@ -11,8 +11,8 @@ block content
 							.collapsible-header.truncate
 								i= idea.id 
 								span(title=idea.text).ideaTitle=  idea.text								
-								i.right.material-icons.grey-text.text-lighten-2.interested grade
-								i.right.material-icons.grey-text.text-lighten-2.voted done
+								i.right.material-icons.interested.z-depth-1 grade
+								i.right.material-icons.voted.z-depth-1 done
 								//- span.chip.right=  columnNames[idea.column]
 								//- span.chip.right=  rowNames[idea.line]
 							form.collapsible-body.vote(id="vote_"+idea.id, data-message_id=idea.id)
