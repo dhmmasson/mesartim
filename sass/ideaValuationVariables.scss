@@ -1,12 +1,13 @@
 /*** Colors ***/
 $primary-color: color("orange", "lighten-1") !default;
-$primary-color-light: lighten($primary-color, 15%) !default;
-$primary-color-dark: darken($primary-color, 15%) !default;
 
-$secondary-color: color("cyan", "accent-1") !default;
+$secondary-color: color("cyan", "darken-1") !default;
 $success-color: color("green", "base") !default;
 $error-color: color("red", "base") !default;
 $link-color: color("light-blue", "darken-1") !default;
 
-$button-color: $primary-color !default;
+$button-color: $secondary-color !default;
 $table-striped-color: color("orange", "lighten-4")  !default;
+$chip-bg-color: lighten( $secondary-color, 50% ) !default;
+
+$body-background-color: color("grey", "lighten-4") ; 

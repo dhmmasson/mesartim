@@ -1,9 +1,31 @@
-
-.diagonal {
-    background: -moz-linear-gradient(to top right,  hsla(0,0%,100%,1) 0%, hsla(0,0%,100%,1) 50%, $table-striped-color 50%, $table-striped-color 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(to top right,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,$table-striped-color 50%,$table-striped-color 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to top right,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,$table-striped-color 50%,$table-striped-color 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+.mesartimTable {
+  background : white ; 
+  td, th {
+    border : 1px inset gray ;
+  } 
+  .diagonal {
+    background: -moz-linear-gradient(to bottom left,  hsla(0,0%,100%,1) 0%, hsla(0,0%,100%,1) 50%, $table-striped-color 50%, $table-striped-color 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(to bottom left,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,$table-striped-color 50%,$table-striped-color 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom left,  hsla(0,0%,100%,1) 0%,hsla(0,0%,100%,1) 50%,$table-striped-color 50%,$table-striped-color 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  }
+  th {
+    font-weight: normal;
+    &.noBorder{
+      border : none ; 
+      background : white !important ; 
+      padding : 2px ;
+      font-weight: bold;
+      text-align: right ;
+    }
+    &.hidden{
+      color : transparent ;
+    }
+    &.active {
+      font-weight: bold;
+    }
+  }
 }
+
 
 .cellDimension {
   position: relative;
@@ -35,18 +57,18 @@
 .clickable {
   cursor : pointer ;
 }
-td, th {
-  border : 1px inset gray ;
-}
+
+
 th span {
   vertical-align: top ;
 }
-th span:first-child{
-  font-weight: bold ;
-}
+// th span:first-child{
+//   font-weight: bold ;
+// }
 td.active {
-  background: rgba(238,110,115,0.5) ;
+  background: $primary-color-light;
 }
+
 
 input.hidden{
   visibility: hidden ;

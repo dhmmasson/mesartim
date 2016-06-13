@@ -1,17 +1,24 @@
 - letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
-table.striped(id=baseName, data-basename=baseName)
+table.striped.mesartimTable(id=baseName, data-basename=baseName)
 	tr
+		th.noBorder 
+		th.noBorder
+		each columnName, columnIndex in columnNames
+			th.center-align.noBorder=  (1+columnIndex) 
+		th.noBorder.hidden X
+	tr
+		th.noBorder 
 		th.cellDimension.diagonal
 			span= dimensionNames.row 
 			span= dimensionNames.column
 		each columnName, columnIndex in columnNames
 			th.center-align( id=baseName+"_column_"+columnIndex )
-				span=  (1+columnIndex) +": "
-				span.maxWidth= columnName.title 				
+				span.maxWidth= columnName.title 	
+		th.noBorder 			
 	each rowName, rowIndex in rowNames
 		tr
+			th.noBorder= letters[rowIndex] 
 			th.headerColumn.center-align( id=baseName+"_row_"+rowIndex )
-				span=letters[rowIndex] +": "
 				span=rowName.title
 			each columnName, columnIndex in columnNames
 				td.center-align.clickable
@@ -28,5 +35,6 @@ table.striped(id=baseName, data-basename=baseName)
 					span( id=baseName + "_label_" +  rowIndex + "_" + columnIndex )
 					//- label( for=radioId
 					//- 				id=baseName + "_label_" +  rowIndex + "_" + columnIndex )
+			th.noBorder
 
 

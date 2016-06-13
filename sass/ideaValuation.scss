@@ -5,6 +5,10 @@
 @import "mesartim-slider";
 @import "mesartim-table";
 
+body {
+  background : $body-background-color ; 
+}
+
 .header{
   margin-bottom: 1rem ;
 }
@@ -20,12 +24,11 @@ hr.row {
 .img-logo {
   height : 64px ; 
 }
-th:not(.active) {
-  font-weight: normal;
+
+.collapsible-body, .collapsible-body div, .vote div {
+  background : white ;
 }
-th.active {
-  font-weight: bold;
-}
+
 .doubleButton {
 
   border-right: 1px inset hsla(0,0%,80%,0.3);

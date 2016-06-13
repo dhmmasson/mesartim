@@ -58,28 +58,17 @@ apiRoutes.get( '/tokenValid', tokenValid ) ;
 app.get( '/seance', requestListSeances );
 app.post('/register', upload.array(), register ) ;
 
-
 app.use('/api', apiRoutes);
 app.use( '/vote', checkAuthentication, getVotePage )
 app.use( '/generation', checkAuthentication, getSubmissionPage )
 app.use( '/login', getLogin )
-app.use( '/', getLogin )
 app.use( '/rank', checkAuthentication, getRankPage )
 
+app.use( '/', getLogin )
 
-function mesartimBd_pooled_qu () {
-	var _arguments = arguments ; 
-	mesartimBd.getConnection(function(err, connection) {
-		if(err) {
-			console.error( "no connection to the db") ;
-			return -1 
-		}
-		console.log( _arguments )
-		connection.query.apply( connection, _arguments )
-	})
-}
+var compteur = 0
 mesartimBd.on('connection', function (connection) {
-  console.log( "connection to database" ) ; 
+  console.log( "connection to database", ++compteur ) ; 
 });
 //SQL
 
@@ -101,7 +90,7 @@ function mesartimBd_pooled_query() {
 	//first argument is the request object
  	  , requete = _arguments.shift() ;
 	mesartimBd.getConnection( (err, connection ) => {
-		if( err ) return console.error("can't get a connection") ;
+		if( err ) return console.error("can't get a connection", compteur) ;
 		requete.sqlConnection = connection ; 
 		return connection.query.apply( connection, _arguments) ;
 	} )

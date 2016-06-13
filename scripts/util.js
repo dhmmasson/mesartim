@@ -16,7 +16,6 @@ define(
       var $this = $(this) 
       , filling = $this.data("filling")
       $this.parent(".mesartimSliderWrapper").addClass("set")
-      filling.addClass("red lighten-3")
       filling.width( $this.val() +"%" ) ; 
     } 
 

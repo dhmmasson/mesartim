@@ -156,13 +156,15 @@ function processVoteIdea( res ){
 //===============================================================
 function addIdea(e) {       
   var message =  $( this ).serialize()
-  console.log( message )
+  
   if (message.content != "" )
     $.post("api/message/new", $( this ).serialize() , processAddIdea )
+  
   e.preventDefault();
 }
 function processAddIdea( res ) {
   if( res.success ){
+    $("#ideaSubmissionField").val("")
     getOwnIdea( since ) ;
   }
 }   
@@ -270,13 +272,13 @@ letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
       ownIdea.prepend( 
         $("<li>" )
         .addClass("collection-item")
-        .addClass("truncate")
-        .addClass("yellow lighten-"+ (3 + item.id % 2))
-        .text( item.text )              
+        .addClass("row")        
+        .append( $("<span>")
+          .addClass( "col s11")
+          .text( item.text ) )
         .append( newBadge )
-        //.append( $("<span class='chip right'>").text( columnNames[item.column_position].title ) )                                
         .append( $("<span class='chip right'>")
-            .addClass("chip right clickable")
+            .addClass("chip right clickable")            
             .text( letters[item.row_position] + ( item.column_position + 1 ))  
             .attr( "title", rowNames[item.row_position].title  + "/" + columnNames[item.column_position].title )
             .data( "category", $("#grille_radio_"+item.row_position+"_"+ item.column_position )) 

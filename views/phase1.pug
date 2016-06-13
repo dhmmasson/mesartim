@@ -15,15 +15,15 @@ block content
 						i.material-icons mode_edit 
 						span.truncate#addIdeaTitle Proposer une idée
 					.collapsible-body
-						.row
-							.input-field
-								textarea.materialize-textarea#textarea1( name="content", style="height:24.4px;" )
+						div 
+							.row.input-field
+								textarea.materialize-textarea#ideaSubmissionField( name="content", style="height:24.4px;" )
 								label( for="textarea1" class="active") Votre idée
-						.row
-							button#submitIdea.right(type="submit" href="#" class="btn waves-effect waves-red" disabled)
-								i.material-icons.right view_module
-								span Sélectionner une catégorie
-			ul.collection.yellow.lighten-5#ownIdea 
+							.row
+								button#submitIdea.right(type="submit" href="#" class="btn waves-effect waves-red" disabled)
+									i.material-icons.right view_module
+									span Sélectionner une catégorie
+			ul.collection#ownIdea 
 
 
 
