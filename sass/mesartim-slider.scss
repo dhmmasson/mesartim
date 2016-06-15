@@ -35,11 +35,12 @@ span.mesartimSliderWrapper.set span.mesartimFilling {
 }
 
 input[type=range].mesarthimSlider {
-border: none ; 
+  border: none ; 
   background : transparent ; 
   -webkit-appearance: none;
   width: 100%;
   margin: 0px 0;
+  height: 32px ;
   cursor: ew-resize ; 
 }
 input[type=range].mesarthimSlider:focus {

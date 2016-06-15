@@ -300,7 +300,7 @@ letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
 
     //all the necessary info are in the token
     function getSeanceColumnAndRows( next )  {
-      $.get("/api/seance/names", ( data ) => {
+      $.get("/api/seance/names", function( data ) {
         processSeanceColumnAndRows( data )
         next()
       })

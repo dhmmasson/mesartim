@@ -1,5 +1,6 @@
 .mesartimTable {
   background : white ; 
+  margin-bottom: 1em ;
   td, th {
     border : 1px inset gray ;
   } 
@@ -15,7 +16,7 @@
       background : white !important ; 
       padding : 2px ;
       font-weight: bold;
-      
+
     }
     &.hidden{
       color : transparent ;
