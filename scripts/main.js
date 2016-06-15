@@ -46,7 +46,7 @@ requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
     //ALL 
     $(".button-collapse").sideNav();
     
-    if( page == "login") {
+    if( page == "login" || page == "") {
       //registration
       $.get("seance", processListSeances )
       $('select').material_select();
@@ -57,7 +57,6 @@ requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
     }
 
 function init() {
-
   $('input[type="radio"]').change( categoryChosen )
   $("input.hidden").parents("td").click( propagateCellClickToInput ) ;
   if( page == "generation"){
@@ -88,7 +87,6 @@ function addVoteValue() {
   $.get("/api/annotations/mine", processVoteValue ) ;
 }
 function processVoteValue( data ) {
-  console.log( data )
   for (var i = 0; i < data.result.length; i++) {
     voteData = data.result[i] ;    
     voteElement = $("#idea_" + voteData.message_id ) ;
@@ -267,22 +265,26 @@ letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
     ownIdea = $("#ownIdea")
     for( var i = 0 ; i < res.result.length ; i++ ) {
       var item = res.result[i]
-        , newBadge = $("<span class='chip green right'>").text("new") 
+        , newBadge = $("<span class='mesartimNew'>").text("new") 
 
       ownIdea.prepend( 
         $("<li>" )
-        .addClass("collection-item")
-        .addClass("row")        
+        .addClass("collection-item row mesartimIdeaList valign-wrapper") 
+        .append( $("<i>")
+          .addClass("left")
+          .text(item.id) )      
         .append( $("<span>")
-          .addClass( "col s11")
+          .addClass( "ideaText valign")
           .text( item.text ) )
         .append( newBadge )
-        .append( $("<span class='chip right'>")
-            .addClass("chip right clickable")            
+        .append( $("<a>")
+            .addClass("mesartimChip clickable")            
             .text( letters[item.row_position] + ( item.column_position + 1 ))  
             .attr( "title", rowNames[item.row_position].title  + "/" + columnNames[item.column_position].title )
             .data( "category", $("#grille_radio_"+item.row_position+"_"+ item.column_position )) 
-            .click( function(e) { $(e.target).data( "category").change() })
+            .click( function(e) { 
+
+              $(e.target).data( "category").prop("checked", true).change() })
                 )
 
             

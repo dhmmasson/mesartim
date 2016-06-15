@@ -9,7 +9,13 @@ module.exports = function(grunt) {
       }
     }
   , copy: 
-    { main: 
+    { materializeFont : 
+      { files: [ { expand: true
+                 , cwd: 'bower_components/Materialize/font/'
+                 , src: ['**']
+                 , dest: 'font/'} ]
+      }
+    , materializeSassFiles: 
       { files: [ { expand: true
                  , cwd: 'bower_components/Materialize/sass/'
                  , src: ['**']

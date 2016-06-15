@@ -4,67 +4,39 @@
 @import "materialize" ;
 @import "mesartim-slider";
 @import "mesartim-table";
+@import "mesartim-ideaList";
 
 body {
   background : $body-background-color ; 
 }
 
-.header{
+
+
+nav {
   margin-bottom: 1rem ;
 }
-hr.row {
-  margin-left: -0.75rem;
-  margin-right: -0.75rem;
-  border-style: inset;
-  border-top: none;
-}
-.relative {
-  position : relative ;
-}
+
 .img-logo {
   height : 64px ; 
 }
 
-.collapsible-body, .collapsible-body div, .vote div {
+#voteIdea, #register, .collapsible, .vote div {
   background : white ;
 }
-
-.doubleButton {
-
-  border-right: 1px inset hsla(0,0%,80%,0.3);
-  margin-right: 5px;
-  padding-right: 10px;
+.idea.active {
+  background: $light-background;
 
 }
 
-.ellipsis{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-
-.popup {
-  position: absolute; 
-  right: 0 ; 
-  font-weight: bold; 
-}
-
-.popup.negatif {
-  color : red ;
-}
-
-.popup.positif {
-  color: lightgreen ;
-}
 .idea {
   .voted, .interested{
     color : color("grey", "lighten-2");
     border-bottom-left-radius: 50%;
     border-bottom-right-radius: 50%;    
     background:rgb( 250, 250, 250 ) ;
-    color: rgba(230,230,230,1);
-    text-shadow: 1px 1px 1px rgba(255,255,255,0.3), -1px -1px 2px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom, #ddd , #fafafa 3px);
+    color: rgba(250,250,250,1);
+    text-shadow: 1px 1px 1px rgba(205,205,205,0.3), -1px -1px 2px rgba(0,0,0,0.3);
 
   }
 }

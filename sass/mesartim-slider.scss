@@ -1,3 +1,23 @@
+
+.popup {
+  position: absolute; 
+  right: 0 ; 
+  font-weight: bold; 
+  width : 2.5rem;
+  border-radius : 50%;
+  background: rgba(230,230,230,1);
+  text-align: center;
+  top: calc( (32px - 1em)/4 );
+}
+.popup.negatif {
+  color : color( "red", "accent-4") ; ;
+}
+.popup.positif {
+  color: color( "green", "accent-4") ;
+}
+
+
+
 span.mesartimSliderWrapper{
   position: relative;
   display: block;

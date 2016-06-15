@@ -1,0 +1,43 @@
+.mesartimIdeaList {
+	position: relative ;
+	i:first-child {
+		width: 2rem;
+    font-size: 1.6rem;
+    line-height: 3rem;
+    display: block;
+    float: left;
+    text-align: center;
+    margin-right: 1rem;
+	}
+	.ideaText {
+		display: inline-block ; 
+		text-align: justify ;
+		width : calc( 100% - 2rem - 3rem - 30px  ) ; 
+	}
+	.mesartimChip {		
+		@extend .z-depth-1; 
+		&:hover {
+			@extend .z-depth-1-half; 
+			background: lighten($button-color, 5%);
+		}
+		transition: all .3s ease-out;
+		width: 3rem;
+    line-height: 3rem;
+    display: block;
+    text-align: center;
+    background: $secondary-color ;
+    color : white ;
+    border-radius: 50% ;
+    float : right ;
+	}
+	.mesartimNew {
+		@extend .z-depth-1; 
+		position: absolute ; 
+		right: 0  ;
+		bottom: 0 ;
+		top: 0 ; 
+		background : $primary-color ;
+
+		float: left ;
+	}
+}
