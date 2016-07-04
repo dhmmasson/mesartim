@@ -28,6 +28,11 @@ nav {
 
 }
 
+.super {
+  vertical-align: super ; 
+  color : color("green", "lighten-2");
+}
+
 .idea {
   .voted, .interested{
     color : color("grey", "lighten-2");

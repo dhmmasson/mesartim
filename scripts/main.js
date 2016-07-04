@@ -112,7 +112,12 @@ function voteIdea( e ){
   criteria = [] ;
   for( var i = 0 ; i < data.length ; i++ ) {
     console.log( data[i] )
-    var [ ok , id ] = data[i].name.match(/criteria_(\d+)/) || []
+    
+
+    var tab = data[i].name.match(/criteria_(\d+)/) || []
+      , ok = tab[1]
+      , id = tab[2] ;
+      
     if( ok ){
       criteria.push(
       { message_id : message_id
@@ -278,7 +283,7 @@ letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
           .text( item.text ) )
         .append( newBadge )
         .append( $("<a>")
-            .addClass("mesartimChip clickable")            
+            .addClass("mesartimChip clickable waves-effect waves-light")            
             .text( letters[item.row_position] + ( item.column_position + 1 ))  
             .attr( "title", rowNames[item.row_position].title  + "/" + columnNames[item.column_position].title )
             .data( "category", $("#grille_radio_"+item.row_position+"_"+ item.column_position )) 
@@ -295,6 +300,7 @@ letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
       grilleElement.text(grilleElement.text()*1+1)
       since = Math.max( since, item.id ) ;
     }
+    Waves.displayEffect();
   }
 }
 

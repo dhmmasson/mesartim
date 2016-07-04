@@ -460,7 +460,7 @@ function register( requete, reponse ) {
 	requete.user = {
 		  nom : requete.body.nom || "_Onyme"
 		, prenom : requete.body.prenom || "_Anne"
-		, entreprise : requete.body.prenom || ""
+		, entreprise : requete.body.entreprise || ""
 		, email :  requete.body.email || ""
 	}		
 	updateOrCreateUser( requete, reponse ) ; 
