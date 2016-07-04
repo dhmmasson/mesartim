@@ -40,6 +40,16 @@ requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
 
   //  $("#register").submit( submitRegistration ) ; 
 
+
+  $(function() {
+     var pgurl = window.location.href.substr(window.location.href.lastIndexOf("/")+1);
+     $("nav ul li a").each(function(){
+          if($(this).attr("href") == pgurl || $(this).attr("href") == '' )
+          $(this).parents("li").addClass("active");
+        
+     })
+  });
+
   page = location.pathname.slice(1);
 
 
@@ -116,8 +126,8 @@ function voteIdea( e ){
 
     var tab = data[i].name.match(/criteria_(\d+)/) || []
       , ok = tab[1]
-      , id = tab[2] ;
-      
+      , id = tab[1] ;
+    console.log( "coucou",  tab, ok, id )  
     if( ok ){
       criteria.push(
       { message_id : message_id

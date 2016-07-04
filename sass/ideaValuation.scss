@@ -14,6 +14,9 @@ body {
 
 nav {
   margin-bottom: 1rem ;
+  li.active {
+    background :  $light-background;
+  }
 }
 
 .img-logo {
@@ -32,6 +35,8 @@ nav {
   vertical-align: super ; 
   color : color("green", "lighten-2");
 }
+
+
 
 .idea {
   .voted, .interested{
