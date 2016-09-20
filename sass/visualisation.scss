@@ -1,0 +1,46 @@
+
+svg {
+  font: 10px sans-serif;
+  
+}
+
+
+
+.frame {
+  fill: none;
+  stroke: #aaa;
+}
+
+circle {
+  fill-opacity: .7;
+}
+
+.interested {
+  box-shadow : 1px 1px 1px yellow ; 
+}
+
+body {
+  font: 11px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: "black";
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+}
+.selected{
+  stroke: red ; 
+  stroke-width : 2px ;
+}

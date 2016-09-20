@@ -6,7 +6,10 @@ requirejs.config({
     'jqueryui': '../bower_components/jquery-ui',
     'materialize': '../../bower_components/Materialize/dist/js/materialize',
     'hammerjs':    '../../bower_components/Materialize/js/hammer.min',
-    'jquery-hammerjs':'../../bower_components/Materialize/js/jquery.hammer'        
+    'jquery-hammerjs':'../../bower_components/Materialize/js/jquery.hammer',
+    'date_format' :  '../../bower_components/date-format/dist/date-format.min',
+    'd3' :  '../../bower_components/d3/d3.min'
+    
   },
   packages: [
 
@@ -25,20 +28,29 @@ requirejs.config({
      "jqueryui": {
       //exports: "$",
       deps: ['jquery']
+    }, 
+    'd3': {
+      exports : "d3"
+    }, 
+    'date_format': {
+      exports : "date_format"
     }
+
   }
 });
 
 // Start the main app logic.
-requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
+requirejs(["date_format", 'visualisation', 'jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
   function   (io, mdl, util, ui) {
     //  var socket = io();
-    console.log(ui)
+    console.log(io)
     token = localStorage.getItem('token') || null ; 
     since = 0 
 
 
   //  $("#register").submit( submitRegistration ) ; 
+
+
 
 
   $(function() {
@@ -65,6 +77,7 @@ requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
       //pour generation et vote 
       getSeanceColumnAndRows( init ) ;
     }
+    if( page=="visualisation") visualisation.loadData()
 
 function init() {
   $('input[type="radio"]').change( categoryChosen )
@@ -88,7 +101,8 @@ function init() {
 
 }
 
-
+window.visualisation = visualisation 
+console.log( visualisation )
 
 //================================================================
 // Rank page

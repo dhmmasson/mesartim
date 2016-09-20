@@ -5,7 +5,7 @@ block content
 			input(type="hidden", name="token", value="")
 			ul.collapsible( data-collapsible="Expandable" )
 				li
-					.collapsible-header
+					.collapsible-header.active
 						i.material-icons view_module
 						span#sectionSelectionTitle Selectionner catégorie
 					.collapsible-body
@@ -16,9 +16,10 @@ block content
 						span.truncate#addIdeaTitle Proposer une idée
 					.collapsible-body
 						div 
-							.row.input-field
-								textarea.materialize-textarea#ideaSubmissionField( name="content", style="height:24.4px;" )
-								label( for="textarea1" class="active") Votre idée
+							.row
+								.col.s12.input-field
+									textarea.materialize-textarea#ideaSubmissionField( name="content", required,  style="height:24.4px;" )
+									label( for="ideaSubmissionField" class="active") Votre idée
 							.row
 								button#submitIdea.right(type="submit" href="#" class="btn waves-effect waves-red" disabled)
 									i.material-icons.right view_module
