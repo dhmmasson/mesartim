@@ -73,7 +73,11 @@ mesartimBd.on('connection', function (connection) {
 //SQL
 
 
-function wrapProcess( callBackSuccess, callBackError, ...args ) {
+function wrapProcess() {
+	var callBackSuccess = arguments[0]
+		, callBackError   = arguments[1]
+		, args = Array.prototype.slice.call(arguments); 
+
 	return ( err, data ) => { 
 		if( err ) 
 			callBackError.apply(this, (args.unshift( err ), args ) ) ; 
@@ -541,14 +545,14 @@ function tokenValid( requete, reponse ) {
 							})
 }
 
-function wrapProcess( callBackSuccess, callBackError, ...args ) {
-	return ( err, data ) => { 
-		if( err ) 
-			callBackError.apply(this, (args.unshift( err ), args ) ) ; 
-		else 
-			callBackSuccess.apply( this, (args.push( data ), args )  ) ;
-	} 
-}
+// function wrapProcess( callBackSuccess, callBackError, ...args ) {
+// 	return ( err, data ) => { 
+// 		if( err ) 
+// 			callBackError.apply(this, (args.unshift( err ), args ) ) ; 
+// 		else 
+// 			callBackSuccess.apply( this, (args.push( data ), args )  ) ;
+// 	} 
+// }
 
 function printAndSkip ( err ) { 
 	if( requete.sqlConnection ) requete.sqlConnection.release()
