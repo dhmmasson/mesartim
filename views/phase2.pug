@@ -23,7 +23,7 @@ block content
 									each criterion, criteriaId in criteria||{originalite:"Originalité", faisabilité:"Faisabilité"}
 										if criterion.type == "numeric"
 											.row
-												.range-field.col.s12
+												.range-field.col.s12.noIndication
 													label=criterion.description
 													input.mesarthimSlider( type="range", min="0", max="100", value=0, name!="criteria_"+criterion.id+"" id="idea_"+idea.id+"_criteria_"+criterion.id)
 									.row.input-field

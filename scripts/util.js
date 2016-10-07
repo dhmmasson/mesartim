@@ -11,12 +11,15 @@ define(
     //===============================================================
     $.__mesartim_sortingInProgress = true ; 
 
+    
 
     function changeSliderFilling( e ) {      
       var $this = $(this) 
       , filling = $this.data("filling")
       $this.parent(".mesartimSliderWrapper").addClass("set")
       filling.width( $this.val() +"%" ) ; 
+      // var val = $this.parent(".mesartimSliderWrapper").children("label").val( ).split(" ")[0] ; 
+      // val += label($this.val()) +"(" + $this.val() + ")"
     } 
 
     function mesartimSlider(){ 

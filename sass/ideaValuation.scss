@@ -73,6 +73,20 @@ nav {
 }
 
 
-
+.input-field:not(.radioGroup) label {
+  color : $secondary-color !important;
+}
+.radioGroup{
+  label {
+    position: absolute;
+    color : black ; 
+    top: -14px;
+    font-size: 0.8rem;
+  } 
+  span {
+    margin-top: 23px ;
+  }
+  margin-bottom: 20px;
+}
 
 

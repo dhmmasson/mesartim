@@ -15,6 +15,6 @@ block content
 						- for( var i in criteria ) { criteriaDefault ["data-criteria_" + criteria[i].id] = Math.random() * 0  ; }
 						li.collection-item.idea.truncate.row(class="col_"+idea.column_position, class="row_"+idea.row_position, id="idea_"+idea.id)&attributes(criteriaDefault)
 							span(title=idea.text).truncate.col.s6=  idea.text		
-							span.col.s6
+							span.col.s6.noIndication
 								input.mesarthimSlider( type="range", min="0", max="100", name!="idea_"+idea.id+"", id="idea_slider_"+idea.id,value=criteriaDefault["data-criteria_0"])
 						

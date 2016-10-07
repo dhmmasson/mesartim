@@ -1,3 +1,55 @@
+.noIndication {
+  input[type=range], input[type=range] + .thumb {
+    @extend .no-select;
+    cursor: pointer;
+  }
+
+  input[type=range] {
+    position: relative;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    margin: 15px 0px;
+    padding: 0;
+  }
+  input[type=range] + .thumb {
+    position: absolute;
+    visibility: none ;
+    border: none;
+    height: 0;
+    width: 0;
+    border-radius: 0;
+    background-color: transparent;
+    top: 10px;
+    margin-left: -6px;
+
+    transform-origin: 50% 50%;
+    transform: rotate(-45deg);
+
+    .value {
+      display: block;
+      width: 30px;
+      text-align: center;
+      color: black;
+      font-size: 0;
+      transform: rotate(45deg);
+    }
+
+    &.active {
+      border-radius: 0;
+
+      .value {
+        visibility: hidden !important ;
+        color: transparent;
+        margin-left: -1px;
+        margin-top: 8px;
+        font-size: 10px;
+      }
+    }
+  }
+}
+
 
 .popup {
   position: absolute; 

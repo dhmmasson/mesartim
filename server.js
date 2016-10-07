@@ -19,7 +19,7 @@ var config = require('./configHeroku')
 //================================================================
 
 
-app.use( morgan( 'dev' ) );
+app.use( morgan( 'common' ) );
 app.use( cookieParser() )
 app.use( bodyParser.json() ); // for parsing application/json
 app.use( bodyParser.urlencoded({ extended: true }) ); // for parsing application/x-www-form-urlencoded
@@ -76,9 +76,9 @@ mesartimBd.on('connection', function (connection) {
 function wrapProcess() {
 	var callBackSuccess = arguments[0]
 		, callBackError   = arguments[1]
-		, args = Array.prototype.slice.call(arguments); 
+		, args = Array.prototype.slice.call(arguments, 2); 
 
-	return ( err, data ) => { 
+	return function( err, data ) { 
 		if( err ) 
 			callBackError.apply(this, (args.unshift( err ), args ) ) ; 
 		else 
@@ -87,13 +87,12 @@ function wrapProcess() {
 }
 
 
-
 function mesartimBd_pooled_query() {
 	//some arguments...
 	var _arguments = [].splice.call(arguments,0)
 	//first argument is the request object
  	  , requete = _arguments.shift() ;
-	mesartimBd.getConnection( (err, connection ) => {
+	mesartimBd.getConnection( function(err, connection )  {
 		if( err ) return console.error("can't get a connection", compteur) ;
 		requete.sqlConnection = connection ; 
 		return connection.query.apply( connection, _arguments) ;
@@ -461,12 +460,24 @@ function processGetAllInfoSeance( requete, reponse, callback, data ) {
 //register 
 function register( requete, reponse ) {
 	//Test if user exist 
-	requete.user = {
-		  nom : requete.body.nom || "_Onyme"
-		, prenom : requete.body.prenom || "_Anne"
-		, entreprise : requete.body.entreprise || ""
-		, email :  requete.body.email || ""
-	}		
+	requete.user = {}
+	requete.user.nom = requete.body.nom || "_Onyme"
+	requete.user.prenom = requete.body.prenom || "_Anne"
+	requete.user.entreprise = requete.body.entreprise || ""
+	requete.user.email =  requete.body.email || ""
+  requete.user.ageRange = requete.ageRange
+  requete.user.lastDiploma = requete.lastDiploma
+  requete.user.organism = requete.organism
+  requete.user.jobtype = requete.jobtype
+  requete.user.motivation = requete.motivation
+  requete.user.implantation = requete.implantation
+  requete.user.adhesion = requete.adhesion
+
+	if( typeof requete.user.adhesion != "string")
+		requete.user.adhesion  =  requete.body.adhesion.join(",")
+	
+	/**CLEAN UP : code dégueulasse **/
+	console.log( requete.user )
 	updateOrCreateUser( requete, reponse ) ; 
 } 
 
@@ -478,6 +489,7 @@ function updateOrCreateUser( requete, reponse ){
 }
 
 function processUpdateOrCreateUser( requete, reponse, rows ) {
+	console.log( "seance",  requete.body.seanceId )
 	if( rows.length > 0 ) {
 		requete.user.id = rows[0].id ; 
 		requete.participation = {
@@ -496,8 +508,7 @@ function createUser( requete, reponse ) {
 	)	
 }
 
-function processNewUser( requete, reponse, err, result ){
-	if(err) throw err;
+function processNewUser( requete, reponse, result ){
 	requete.user.id = result.insertId
 	requete.participation = {
 		  user_id :  result.insertId
@@ -545,16 +556,8 @@ function tokenValid( requete, reponse ) {
 							})
 }
 
-// function wrapProcess( callBackSuccess, callBackError, ...args ) {
-// 	return ( err, data ) => { 
-// 		if( err ) 
-// 			callBackError.apply(this, (args.unshift( err ), args ) ) ; 
-// 		else 
-// 			callBackSuccess.apply( this, (args.push( data ), args )  ) ;
-// 	} 
-// }
 
-function printAndSkip ( err ) { 
+function printAndSkip ( err, requete ) { 
 	if( requete.sqlConnection ) requete.sqlConnection.release()
 	console.error( "\033[31m")
 	console.error( err ) 
