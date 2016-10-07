@@ -465,13 +465,13 @@ function register( requete, reponse ) {
 	requete.user.prenom = requete.body.prenom || "_Anne"
 	requete.user.entreprise = requete.body.entreprise || ""
 	requete.user.email =  requete.body.email || ""
-  requete.user.ageRange = requete.ageRange
-  requete.user.lastDiploma = requete.lastDiploma
-  requete.user.organism = requete.organism
-  requete.user.jobtype = requete.jobtype
-  requete.user.motivation = requete.motivation
-  requete.user.implantation = requete.implantation
-  requete.user.adhesion = requete.adhesion
+  requete.user.ageRange = requete.body.ageRange
+  requete.user.lastDiploma = requete.body.lastDiploma
+  requete.user.organism = requete.body.organism
+  requete.user.jobtype = requete.body.jobtype
+  requete.user.motivation = requete.body.motivation
+  requete.user.implantation = requete.body.implantation
+  requete.user.adhesion = requete.body.adhesion
 
 	if( typeof requete.user.adhesion != "string")
 		requete.user.adhesion  =  requete.body.adhesion.join(",")
