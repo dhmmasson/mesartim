@@ -4,7 +4,7 @@
   "description": "server for the mesartim project",
   "main": "server.js",
   "scripts": {
-    "test": "node --harmony_rest_parameters --harmony_destructuring server.js",
+    "test": "bower install && grunt && node server.js",
     "postinstall": "bower install && grunt "
   },
   "repository": {

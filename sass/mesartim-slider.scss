@@ -15,12 +15,12 @@
   }
   input[type=range] + .thumb {
     position: absolute;
-    visibility: none ;
+    //visibility: none ;
     border: none;
     height: 0;
     width: 0;
-    border-radius: 0;
-    background-color: transparent;
+    border-radius: 50%;
+    background-color: $secondary-color ;
     top: 10px;
     margin-left: -6px;
 
@@ -37,11 +37,11 @@
     }
 
     &.active {
-      border-radius: 0;
-
+      border-radius: 50%;
+      border-bottom-left-radius: 0;
       .value {
-        visibility: hidden !important ;
-        color: transparent;
+      //  visibility: hidden !important ;
+        color: white;
         margin-left: -1px;
         margin-top: 8px;
         font-size: 10px;
@@ -70,6 +70,22 @@
 
 
 
+
+@mixin backgroundGenerator() {
+  $color1 : transparent ;
+  $color2 : rgba(0,0,0,0.2) ; 
+
+  background: $color1 ;   
+  background: -webkit-repeating-linear-gradient(90deg, $color1, $color1 50%, $color2 50%, $color2 51%, $color1 51%, $color1 100%);
+  background: -o-repeating-linear-gradient(90deg, $color1, $color1 50%, $color2 50%, $color2 51%, $color1 51%, $color1 100%);
+  background: -moz-repeating-linear-gradient(90deg, $color1, $color1 50%, $color2 50%, $color2 51%, $color1 51%, $color1 100%);
+  background: repeating-linear-gradient(90deg, $color1, $color1 50%, $color2 50%, $color2 51%, $color1 51%, $color1 100%); 
+  background-size : 20% auto ; 
+  background-repeat: repeat; 
+}
+
+
+
 span.mesartimSliderWrapper{
   position: relative;
   display: block;
@@ -89,6 +105,7 @@ span.mesartimSliderWrapper.set span.mesartimFilling {
 input[type=range].mesarthimSlider {
   border: none ; 
   background : transparent ; 
+  @include backgroundGenerator() ;
   -webkit-appearance: none;
   width: 100%;
   margin: 0px 0;

@@ -6,7 +6,9 @@ requirejs.config({
     'jqueryui': '../bower_components/jquery-ui',
     'materialize': '../../bower_components/Materialize/dist/js/materialize',
     'hammerjs':    '../../bower_components/Materialize/js/hammer.min',
-    'jquery-hammerjs':'../../bower_components/Materialize/js/jquery.hammer'        
+    'jquery-hammerjs':'../../bower_components/Materialize/js/jquery.hammer',
+    'date_format' :  '../../bower_components/date-format/dist/date-format.min',
+    'd3' :  '../../bower_components/d3/d3.min'        
   },
   packages: [
 
@@ -26,11 +28,15 @@ requirejs.config({
       //exports: "$",
       deps: ['jquery']
     }
+    , 
+    'date_format': {
+      exports : "date_format"
+    }
   }
 });
 
 // Start the main app logic.
-requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
+requirejs(["date_format", 'jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable', 'visualisation'],
   function   (io, mdl, util, ui) {
     //  var socket = io();
     console.log(ui)
@@ -55,6 +61,9 @@ requirejs(['jquery', 'socketio', 'materialize', 'util', 'jqueryui/ui/sortable'],
 
     //ALL 
     $(".button-collapse").sideNav();
+    if( page == "admin" ) {
+      visualisation.loadData() ;
+    }
     
     if( page == "login" || page == "") {
       //registration
@@ -111,6 +120,9 @@ function processVoteValue( data ) {
 //VOTE SUR UNE IDÉE =====================
 //===============================================================
 function voteIdea( e ){
+
+ 
+
   e.preventDefault();
   var $form = $( this )
     , data =  $form.serializeArray()
@@ -119,15 +131,16 @@ function voteIdea( e ){
 
     $header.addClass("voted")
 
+
+
+  setTimeout(function() { $header.children(".collapsible-header").click()  }, 150);
   criteria = [] ;
   for( var i = 0 ; i < data.length ; i++ ) {
-    console.log( data[i] )
-    
 
     var tab = data[i].name.match(/criteria_(\d+)/) || []
       , ok = tab[1]
       , id = tab[1] ;
-    console.log( "coucou",  tab, ok, id )  
+    
     if( ok ){
       criteria.push(
       { message_id : message_id
@@ -137,9 +150,10 @@ function voteIdea( e ){
     if( id == 0 ) $header.addClass("interested")
     }
   }
-  console.log( criteria )
+  
 
   $.post("/api/message/"+ message_id +"/annotate", { criteria : criteria }, processVoteIdea ) ;
+  $(this).parent( ".collapsible-header").trigger("click.collapse") ;
 }
 function restoreVote() {
   $.get("/api/annotations/mine", processRestoreVote)

@@ -62,7 +62,9 @@ app.use('/api', apiRoutes);
 app.use( '/vote', checkAuthentication, getVotePage )
 app.use( '/generation', checkAuthentication, getSubmissionPage )
 app.use( '/login', getLogin )
-app.use( '/rank', checkAuthentication, getRankPage )
+app.use( '/rank', checkAuthentication, getRankPage ) ;
+
+app.use( '/admin', checkAuthentication, getAdminPage ) ; 
 
 app.use( '/', getLogin )
 
@@ -378,17 +380,61 @@ function processGetAnnotationSeance( requete, reponse, rows ) {
 	, result : rows } )
 }
 
+
+// function getAnnotations( requete, reponse ) {
+// 	var user = requete.decoded.user
+// 	  , values = [ user.id ]
+// 	mesartimBd_pooled_query(requete, sqlGetVoteByUser, values, wrapProcess( processGetAnnotation, printAndSkip, requete, reponse ))
+// }
+
+// function processGetAnnotation( requete, reponse, data ) {
+// 	releaseIfExists( requete.sqlConnection ) 
+// 		reponse.json( {
+// 		success: true
+// 	, result : data } )
+// }
+
+//================================================================
+//Resultat
+//================================================================
+
 function getAnnotations( requete, reponse ) {
-	var user = requete.decoded.user
-	  , values = [ user.id ]
-	mesartimBd_pooled_query(requete, sqlGetVoteByUser, values, wrapProcess( processGetAnnotation, printAndSkip, requete, reponse ))
+	//Bst annotation is a request that sort annotation by date, and then group by the "primary key (user,message,criteria)" 
+  //select * from (select * from annotation group by id, datecreation order by datecreation desc) annotationByTime group by user_id, message_id, criteria_id
+  var bestAnnotation = "(select * from annotation order by user_id, message_id, criteria_id, datecreation desc) bestAnnotation "
+    , sql = "SELECT message.id as message_id, message.text as message_text, bestAnnotation.user_id as judge_id, participation.user_id as auteur_id, CONCAT(COALESCE( user.sex, '' ), ' ', user.prenom, ' ', user.nom ) as auteur_name, criteria.id as criteria_id, criteria.description, bestAnnotation.value "
+          + "FROM " + bestAnnotation 
+          + "JOIN message       on bestAnnotation.message_id  = message.id "
+          + "JOIN participation on message.participation_id   = participation.id "
+          + "JOIN criteria      on bestAnnotation.criteria_id = criteria.id "
+          + "JOIN user      		on participation.user_id 			= user.id "
+          + "WHERE participation.seance_id = ? "
+    , seance = requete.query.seance || requete.decoded.participation.seance_id 
+    
+    query = mesartimBd_pooled_query( requete, sql, seance, wrapProcess( processGetAnnotations, printAndSkip, requete, reponse ) ) ;
+    console.log( query )
+}
+function processGetAnnotations( requete, reponse, resultat ) {
+	if( requete.sqlConnection ) requete.sqlConnection.release()
+	reponse.json( 
+		{ success : true 
+		, resultat : resultat 
+		})
 }
 
-function processGetAnnotation( requete, reponse, data ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
-		reponse.json( {
-		success: true
-	, result : data } )
+//================================================================
+//PARTICIPANTS
+//================================================================
+function getAdminPage( requete, reponse ) {
+		var sql = "SELECT id, description, type"
+			+ ' ' + 'FROM criteria'
+
+	mesartimBd_pooled_query(requete, sql, {}, wrapProcess( processGetAdminPage, printAndSkip, requete, reponse ))
+}
+
+function processGetAdminPage( requete, reponse, data ) {
+	var values = { criteria : data[0] }
+	reponse.render( "admin", values ) ;
 }
 
 //================================================================
@@ -505,7 +551,7 @@ function processUpdateOrCreateUser( requete, reponse, rows ) {
 function createUser( requete, reponse ) {
 	mesartimBd_pooled_query(requete, 'INSERT INTO user SET ?', requete.user
 		     , wrapProcess( processNewUser, printAndSkip, requete, reponse )
-	)	
+	)		
 }
 
 function processNewUser( requete, reponse, result ){

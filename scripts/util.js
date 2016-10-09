@@ -6,12 +6,40 @@ define(
   	}
 
 
+    function heritableArray( object, propertyName, defaultArray  ) {
+    var privateName =  "_" + propertyName
+    //Define private property 
+    Object.defineProperty( object, privateName, {
+        value : defaultArray.slice(0)
+      , enumerable : false 
+      , writable : true 
+      , configurable : false
+    })
+    //define public property that copy on first use 
+    Object.defineProperty( object, propertyName, 
+      { get: function() { 
+           if( !this.hasOwnProperty( privateName ) ) {
+              //copy property
+              this[ privateName ] =  this[ privateName ].slice(0)
+              Object.defineProperty(this, privateName, {enumerable : false })
+              
+            }
+            return this[ privateName ]
+          }
+      , set: function(newValue) { return this[ privateName ] = newValue  }
+      , enumerable: true
+      , configurable: true
+      })
+    return object ;
+  }
+  window.heritableArray = heritableArray 
+
   	//===============================================================
     //Sliders=====================
     //===============================================================
     $.__mesartim_sortingInProgress = true ; 
 
-    
+
 
     function changeSliderFilling( e ) {      
       var $this = $(this) 

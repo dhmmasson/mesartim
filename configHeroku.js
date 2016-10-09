@@ -1,9 +1,9 @@
 module.exports = 
 {  secret : process.env.SECRET     									|| "adasdasdasd"           
-, database: {  host: process.env.SQL_HOST      			|| "172.22.111.68"
-            ,  user: process.env.SQL_USER     			|| "IdeaValuation"
-            ,  password: process.env.SQL_PASSWORD   || "Enboislol33pma"
-            ,  database: process.env.SQL_DATABASE   || "IdeaValuation"  
+, database: {  host: process.env.SQL_HOST      			|| "127.0.0.1"
+            ,  user: process.env.SQL_USER     			|| "root"
+            ,  password: process.env.SQL_PASSWORD   || "hamal"
+            ,  database: process.env.SQL_DATABASE   || "mesartim"  
             , multipleStatements: true
             , connectionLimit : 100
             }
