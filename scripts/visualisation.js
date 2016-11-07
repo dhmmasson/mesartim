@@ -35,9 +35,16 @@ function(d3, $, date_format) {
 	heritableArray( _consolidatedMessage, 'criteria_min', [0,0,0,0] )
 
 	
-	
-
-
+	function ConsolidatedUser () {}
+	_consolidatedUser = Object.create( ConsolidatedUser.prototype )
+	_consolidatedUser.id = 0
+	_consolidatedUser.nb_vote 	
+	heritableArray( _consolidatedUser, 'criteria_average', [0,0,0,0] )
+	heritableArray( _consolidatedUser, 'criteria_stddev', [0,0,0,0] )
+	heritableArray( _consolidatedUser, 'criteria_sum', [0,0,0,0] )
+	heritableArray( _consolidatedUser, 'criteria_count', [0,0,0,0] )
+	heritableArray( _consolidatedUser, 'criteria_max', [0,0,0,0] )
+	heritableArray( _consolidatedUser, 'criteria_min', [0,0,0,0] )
 
 
 	function Visualisation () {} 
@@ -70,6 +77,7 @@ function(d3, $, date_format) {
 			, consolidatedVote = null
 			, consolidatedMessage = null 
 			, messages = {}
+			, users = {} 
 			, prev = data.resultat[0] 
 
 		resultat.push( prev )	
@@ -125,17 +133,54 @@ function(d3, $, date_format) {
 
 			//link the vote to the message 
 			consolidatedVote.consolidatedMessage = consolidatedMessage ; 
+
+
+
+			//Create a new element that aggregate the criteria values by user
+			if( !users.hasOwnProperty( element.judge_id ) ) {
+				consolidatedUser 			   			= Object.create( _consolidatedUser ) 
+				consolidatedUser.id 		   		= element.judge_id
+				consolidatedUser.nb_vote 	 		= 0				
+				//Add user to its consolidated result set
+				users[ element.judge_id ] = consolidatedUser ;
+			}
+			//aggregate the vote		
+			consolidatedUser = users[ element.judge_id ] 
+			consolidatedUser.criteria_sum[ element.criteria_id ] += element.value 	
+			consolidatedUser.criteria_min[ element.criteria_id ] = Math.min( consolidatedUser.criteria_min[ element.criteria_id ] ,  element.value 	) 
+			consolidatedUser.criteria_max[ element.criteria_id ] = Math.max( consolidatedUser.criteria_max[ element.criteria_id ] ,  element.value 	) 
+			consolidatedUser.criteria_count[ element.criteria_id ] ++			
+
+			//link the vote to the message 
+			consolidatedVote.consolidatedUser = consolidatedUser ; 
+
+
+
+
 		}
 		
 		//compute the mean by message
 		for( var message_id in messages ) {
 			for( var criteria_id = 0 ; criteria_id < messages[ message_id ].criteria_sum.length ; criteria_id++ ) {
-				messages[ message_id ].criteria_average[ criteria_id ] = messages[ message_id ].criteria_sum[ criteria_id ] / messages[ message_id ].criteria_count[ criteria_id ]
+				if( messages[ message_id ].criteria_count[ criteria_id ] > 0 )
+					messages[ message_id ].criteria_average[ criteria_id ] = messages[ message_id ].criteria_sum[ criteria_id ] / messages[ message_id ].criteria_count[ criteria_id ]
+				else 
+					messages[ message_id ].criteria_average[ criteria_id ] = 0
+			}
+		}
+		
+			//compute the mean by user
+		for( var user_id in users ) {
+			for( var criteria_id = 0 ; criteria_id < users[ user_id ].criteria_sum.length ; criteria_id++ ) {
+				if( users[ user_id ].criteria_count[ criteria_id ] > 0 )
+					users[ user_id ].criteria_average[ criteria_id ] = users[ user_id ].criteria_sum[ criteria_id ] / users[ user_id ].criteria_count[ criteria_id ]
+				else 
+					users[ user_id ].criteria_average[ criteria_id ] = 0
 			}
 		}
 		
 
-
+		this.users = users 
 		this.votes = votes
 		this.messages = []
 		this.array = [] ;
@@ -154,10 +199,33 @@ function(d3, $, date_format) {
 		for( var message_id in messages ) {
 			//square root of the mean
 			for( var criteria_id = 0 ; criteria_id < messages[ message_id ].criteria_sum.length ; criteria_id++ ) {
-				messages[ message_id ].criteria_stddev[ criteria_id ] = Math.sqrt( messages[ message_id ].criteria_stddev[ criteria_id ] / messages[ message_id ].criteria_count[ criteria_id ]) 
+				if( messages[ message_id ].criteria_count[ criteria_id ] != 0)
+					messages[ message_id ].criteria_stddev[ criteria_id ] = Math.sqrt( messages[ message_id ].criteria_stddev[ criteria_id ] / messages[ message_id ].criteria_count[ criteria_id ]) 
 			}
 			this.messages.push( messages[ message_id ] )
 		}
+
+
+
+		for( var vote_id in votes ) {
+			//compute stddev for each criteria 
+			for( var criteria_id = 0 ; criteria_id < votes[vote_id].criteria.length ; criteria_id++ ) {
+				//difference with the mean
+				var value = votes[ vote_id ].criteria[ criteria_id ] - votes[  vote_id ].consolidatedUser.criteria_average[ criteria_id ] 
+				//add the square of the difference
+				votes[  vote_id ].consolidatedUser.criteria_stddev[ criteria_id ] += value * value
+			}
+		}
+
+		//Finish the stddev
+		for( var user_id in users ) {
+			//square root of the mean
+			for( var criteria_id = 0 ; criteria_id <users[ user_id ].criteria_sum.length ; criteria_id++ ) {
+				if( users[ user_id ].criteria_count[ criteria_id ] != 0)
+					users[ user_id ].criteria_stddev[ criteria_id ] = Math.sqrt(users[ user_id ].criteria_stddev[ criteria_id ] / users[ user_id ].criteria_count[ criteria_id ]) 
+			}
+		}
+
 
 
 		this.init() ; 
@@ -184,11 +252,108 @@ function(d3, $, date_format) {
 	}());
 
 	date_format.extendPrototype();
+	visualisation.votesToCSV = function( filter, title ) {
+		var votes = this.votes 
+			, resultat = "" 
+		for( var label in _consolidatedVote ){
+			if( _consolidatedVote[label].length > 0 ) {
+				for( var i = 0 ; i <  _consolidatedVote[label].length ; i++) 	resultat += label +"_"+i + "," ;
+			} else { 
+				resultat += label + "," ;
+			}
+		}
+		resultat = resultat.slice(0,-1) ;
+		resultat +="\n" ;
+		
+		for( var i in votes ) {
+			if( filter( votes[i] )){
+				//Push value for all label in right order
+				for( var label in _consolidatedVote ){				
+					resultat += votes[i][ label ] + "," ;
+				}
+				resultat = resultat.slice(0,-1) ;
+				resultat +="\n" ;
+			}
+		}
+		saveData( resultat, title + "_"+( ( new Date() ).format('Y-m-d_Hi'))+".csv")
+	}
+
+	visualisation.messagesToCSV = function( filter, title ) {
+		var messages = this.messages 
+			, resultat = "" 
+		for( var label in _consolidatedMessage ){
+			if( _consolidatedMessage[label].length > 0 ) {
+				for( var i = 0 ; i <  _consolidatedMessage[label].length ; i++) 	resultat += label +"_"+i + "," ;
+			} else { 
+				resultat += label + "," ;
+			}
+		}
+		resultat = resultat.slice(0,-1) ;
+		resultat +="\n" ;
+		
+		for( var i in messages ) {
+			if( filter( messages[i] )){
+				//Push value for all label in right order
+				for( var label in _consolidatedMessage ){				
+					resultat += messages[i][ label ] + "," ;
+				}
+				resultat = resultat.slice(0,-1) ;
+				resultat +="\n" ;
+			}
+		}
+		saveData( resultat, title + "_"+( ( new Date() ).format('Y-m-d_Hi'))+".csv")
+	}
+
+
+	visualisation.userToCSV = function( filter, title ) {
+		var users = this.users 
+			, resultat = "" 
+		for( var label in _consolidatedUser ){
+			if( _consolidatedUser[label].length > 0 ) {
+				for( var i = 0 ; i <  _consolidatedUser[label].length ; i++) 	resultat += label +"_"+i + "," ;
+			} else { 
+				resultat += label + "," ;
+			}
+		}
+		resultat = resultat.slice(0,-1) ;
+		resultat +="\n" ;
+		
+		for( var i in users ) {
+			if( filter( users[i] )){
+				//Push value for all label in right order
+				for( var label in _consolidatedUser ){				
+					resultat += users[i][ label ] + "," ;
+				}
+				resultat = resultat.slice(0,-1) ;
+				resultat +="\n" ;
+			}
+		}
+		saveData( resultat, title + "_"+( ( new Date() ).format('Y-m-d_Hi'))+".csv")
+	}
+
+
+	function filterAll( ){ return true }
+
+
+	visualisation.makeAllCSV = function() {
+		this.votesToCSV( filterAll, "allVotes" ) ;
+		this.votesToCSV( function( vote ){ return vote["criteria"][0] == 1 }, "allVotesWithInteret" ) ;
+		this.votesToCSV( function( vote){  return vote["criteria"][0] == 0 }, "allVotesWithNoInteret" ) ;
+
+		this.messagesToCSV( filterAll, "allMessages" )
+
+		this.userToCSV( filterAll, "allUsers" )
+	}
+
 	visualisation.toCSV = function() {
 		var votes = this.votes 
 			, resultat = "" 
 		for( var label in _consolidatedVote ){
-			resultat += label + "," ;
+			if( _consolidatedVote[label].length > 0 ) {
+				for( var i = 0 ; i <  _consolidatedVote[label].length ; i++) 	resultat += label +"_"+i + "," ;
+			} else { 
+				resultat += label + "," ;
+			}
 		}
 		resultat = resultat.slice(0,-1) ;
 		resultat +="\n" ;
@@ -201,10 +366,9 @@ function(d3, $, date_format) {
 			resultat = resultat.slice(0,-1) ;
 			resultat +="\n" ;
 		}
-
 		saveData( resultat, "data_"+( ( new Date() ).format('Y-m-d_Hi'))+".csv")
-
 	}
+
 
 	var margin = {top: 20, right: 20, bottom: 30, left: 40},
   width = 800 - margin.left - margin.right,

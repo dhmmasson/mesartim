@@ -5,10 +5,10 @@ block content
 			.row
 				.input-field.col.s12.l6
 					input( id="first_name", type="text", class="validate", name="prenom" )
-					label( or="first_name" ) Prénom 		
+					label( or="first_name" ) First name 		
 				.input-field.col.s12.l6
 					input(id="last_name", type="text", class="validate", name="nom" )
-					label(for="last_name") Nom
+					label(for="last_name") Last name
 			.row
 				.input-field.col.s12
 					input( id="entreprise", type="text", class="validate", name="entreprise" )
@@ -20,97 +20,97 @@ block content
 						span.super *
 			.row
 				.input-field.col.s12.l6
-						.row.radioGroup
-							label Sexe 
-							span.col.l4.m4.s12 
-								input( type="radio", name="sex", id="sexe_masculin"  value="M.") 
-								label( for="sexe_masculin" ) Masculin
-							span.col.l4.m4.s12
-								input( type="radio", name="sex", id="sexe_feminin"  value="Mme" ) 
-								label( for="sexe_feminin" ) Féminin
-							span.col.l4.m4.s12
-								input( type="radio", name="sex", id="sexe_autre_na"   value="") 
-								label( for="sexe_autre_na" ) Autre
+					.row.radioGroup
+						label Sex
+						span.col.l4.m4.s12 
+							input( type="radio", name="sex", id="sexe_masculin"  value="male") 
+							label( for="sexe_masculin" ) Male
+						span.col.l4.m4.s12
+							input( type="radio", name="sex", id="sexe_feminin"  value="female" ) 
+							label( for="sexe_feminin" ) Female
+						span.col.l4.m4.s12
+							input( type="radio", name="sex", id="sexe_autre_na"   value="na") 
+							label( for="sexe_autre_na" ) Other
 				.input-field.col.s12.l6
-					select( name="ageRange", class="validate", required )
-						option( disabled, selected ) Renseignez votre âge
-						option( value="17") moins de 18 ans
-						option( value="18") 18-25 ans
-						option( value="25") 25-35 ans
-						option( value="35") 35-45 ans 
-						option( value="45") 45-55 ans
-						option( value="55") plus de 55 ans
-					label Tranche d'âge
+					select( name="ageRange" )
+						option( disabled, selected ) Enter your age
+						option( value="17") under 18 years
+						option( value="18") 18-25 years
+						option( value="25") 25-35 years
+						option( value="35") 35-45 years 
+						option( value="45") 45-55 years
+						option( value="55") more than 55 years
+					label Age range
 			.row
 				.input-field.col.s12.l6
-					select( name="lastDiploma", class="validate", required)
-						option( disabled, selected ) Indiquez votre dernier diplôme obtenu
-						option( value="0") Aucun
-						option( value="1") Bac
-						option( value="2") Bac + 2
-						option( value="3") Bac + 3
-						option( value="5") Bac + 5
-						option( value="8") Bac + 8
-					label niveau d'études
+					select( name="lastDiploma")
+						option( disabled, selected ) Please indicate your last diploma
+						option( value="0") No diploma
+						option( value="1") High school degree
+						option( value="2") Bachelor degree
+						option( value="3") Master degree
+						option( value="5") MBA degree
+						option( value="8") PhD degree
+					label last diploma
 				.input-field.col.s12.l6
-					select( name="organism", class="validate", required) 
-						option( disabled, selected ) A quelle organisme/profession appartenez-vous ? 
-						option( value="GRE") Grande Entreprise (plus de 5000 employés)
-						option( value="ETI") ETI (250-4999 employés)
-						option( value="PME") PME (10-249 employés)
-						option( value="TPE") TPE ( moins de 10 employés)
-						option( value="SUP") Start-up
+					select( name="organism") 
+						option( disabled, selected ) Which organization / profession do you belong?
+						option( value="GRE") Large group (more than 5000 employees)
+						option( value="ETI") ETI (250-4999 employees)
+						option( value="PME") Medium-sized enterprise(50-249 employees)
+						option( value="TPE") Small entreprise (10-49 employees)
+						option( value="SUP") Start-up (less than 10 employees)
 						option( value="AUE") Auto-Entrepreneur
-						option( value="LAB") Laboratoire
-						option( value="ECO") Ecole
-						option( value="UNI") Université
+						option( value="LAB") Laboratory
+						option( value="ECO") Engineering School
+						option( value="UNI") University
 						option( value="ASS") Association
-						option( value="ONG") ONG
-						option( value="COL") Collectivité
-						option( value="SEP") Service Public
-						option( value="ETU") Etudiant
-						option( value="RET") Retraité
-						option( value="SEM") Sans Emploi
-						option( value="AUT") Autre
-					label type d'organisation
+						option( value="ONG") NGO
+						option( value="COL") Local authorities
+						option( value="SEP") Public service
+						option( value="ETU") Student
+						option( value="RET") Retired
+						option( value="SEM") Unemployed
+						option( value="AUT") Other
+					label Organisation 
 				.input-field.col.s12.l6
-					select( name="jobtype")
-						option( disabled, selected ) Quel type de poste occupez-vous ?
+					select( name="jobtype" )
+						option( disabled, selected ) What kind of position do you hold?
 						option( value="MAN") Manager
-						option( value="EXP") Expert technique
-						option( value="AUT") Autre
-					label Type de poste actuel
+						option( value="EXP") Technical expert
+						option( value="AUT") Other
+					label Position
 				.input-field.col.s12.l6
-					select( name="motivation", class="validate", required)
-						option( disabled, selected ) Quelle est votre motivation initiale ?
-						option( value="RES") Enrichir mon réseau
-						option( value="INN") Faire émerger des idées de projets collaboratifs d'innovation
-						option( value="AUT") Autre
-					label Motivation initiale
+					select( name="motivation" )
+						option( disabled, selected ) What is your initial motivation?
+						option( value="RES") Enhance my network
+						option( value="INN") Generate ideas for collaborative innovation projects
+						option( value="AUT") Other
+					label Motivation
 				.input-field.col.s12.l6
-					select( name="implantation", class="validate", required)
-						option( disabled, selected ) De quelle région êtes-vous ?
-						option( value="RE1") Nouvelle-Aquitaine
-						option( value="RE2") Occitanie
-						option( value="RE3") Provence-Alpes-Côte d'Azur
-						option( value="RE4") Autre
-					label Implantation géographique
-				.input-field.col.s12.l6
-					select( name="adhesion", multiple, class="validate", required )
-						option( disabled, selected ) Vous êtes adhérents, ou vous souhaitez adhérer au :
-						option( value="AD1") Pôle Aerospace Valley
-						option( value="AD2") Pôle Mer Méditerranée
-						option( value="AD3") Autre
-						option( value="AD4") Je ne suis pas adhérent d'un pôle ou d'un cluster
-					label Adhésion									
+					select( name="implantation" )
+						option( disabled, selected ) Where are you from?
+						option( value="RE1") France - Nouvelle-Aquitaine
+						option( value="RE2") France - Occitanie
+						option( value="RE3") France - Provence-Alpes-Côte d'Azur
+						option( value="RE4") Italy
+						option( value="RE5") Spain
+						option( value="RE6") Greece
+						option( value="RE7") Romania
+						option( value="RE8") Sweden
+						option( value="RE9") Poland
+						option( value="RE10") Other
+					label Location
 			.row
 				div#seanceDiv.input-field.col.s6
 					select#seance(name="seanceId", class="validate", required) 
-						option( value="", disabled selected) Choisir une séance 
-					label Séance				
+						option( value="", disabled selected) Choose a seance 
+					label Seance				
 				div.input-field.col.s3.offset-s3.m4.l4.offset-m2.offset-l2
-					button( class="btn waves-effect waves-light", type="submit", name="action") Commencer la séance
+					button( class="btn waves-effect waves-light", type="submit", name="action") Start séance
 						i(class="material-icons right") send
 
 
 
+
+					

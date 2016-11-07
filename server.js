@@ -17,7 +17,7 @@ var config = require('./configHeroku')
 //================================================================
 //configurations 
 //================================================================
-
+console.log(config)
 
 app.use( morgan( 'common' ) );
 app.use( cookieParser() )
@@ -574,7 +574,7 @@ function processNewParticapation( requete, reponse, result ){
 	//Should rather send a token 
 	token=jwt.sign( { user : requete.user, participation : requete.participation }
 								, app.get('secret')
-								, { expiresIn: "24h" // expires in 24 hours    
+								, { expiresIn: "8d" // expires in 24 hours    
 								} ) ;
 	reponse.cookie( 'token', token );
 	reponse.redirect('/generation')

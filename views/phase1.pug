@@ -7,22 +7,22 @@ block content
 				li
 					.collapsible-header
 						i.material-icons view_module
-						span#sectionSelectionTitle Selectionner catégorie
+						span#sectionSelectionTitle Choose a category
 					.collapsible-body
 						include table.pug
 				li
 					.collapsible-header.active
 						i.material-icons mode_edit 
-						span.truncate#addIdeaTitle Proposer une idée
+						span.truncate#addIdeaTitle Submit an idea
 					.collapsible-body
 						div 
 							.row.input-field
 								textarea.materialize-textarea#ideaSubmissionField( name="content", style="height:24.4px;" )
-								label( for="textarea1" class="active") Votre idée
+								label( for="textarea1" class="active") Your idea
 							.row
 								button#submitIdea.right(type="submit" href="#" class="btn waves-effect waves-red" disabled)
 									i.material-icons.right view_module
-									span Sélectionner une catégorie
+									span Choose a category
 			ul.collection#ownIdea 
 
 

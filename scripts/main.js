@@ -219,7 +219,7 @@ function categoryChosen( e ) {
 function changeTitle( rowName, columnName ){
   var titre = "catégorie selectionnée : "+ rowName + "/" + columnName 
   $("#sectionSelectionTitle").text( titre )
-  titre = "Ajouter idée à la catégorie : " + rowName+ "/" + columnName
+  titre = "Add Idea to category : " + rowName+ "/" + columnName
   $("#addIdeaTitle")
   .text( titre )
   .attr("title", titre )
@@ -253,7 +253,7 @@ function propagateCellClickToInput() {
 function setIdeaSubmissionOk() {
   $('#submitIdea').prop("disabled", false )
   $('#submitIdea').find('i').text("playlist_add")
-  $('#submitIdea').find('span').text("Soumettre votre idée")
+  $('#submitIdea').find('span').text("Submit your idea")
 }
 
 
