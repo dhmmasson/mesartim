@@ -30,6 +30,7 @@
     "grunt-contrib-copy": "^1.0.0",
     "grunt-sass": "^1.2.0",
     "jsonwebtoken": "^7.0.0",
+    "minimist": "^1.2.0",
     "morgan": "^1.7.0",
     "multer": "^1.1.0",
     "mysql": "^2.10.2",

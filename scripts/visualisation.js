@@ -11,7 +11,8 @@ function(d3, $, date_format) {
 	_consolidatedVote.auteur_id = 0 
 	_consolidatedVote.judge_id = 0 
 	_consolidatedVote.message_id = 0 
-	
+    _consolidatedVote.dateVote = 0 
+    _consolidatedVote.dateGeneration = 0 
 	heritableArray( _consolidatedVote, 'criteria', [0,0,0,0] )
 
 
@@ -26,6 +27,7 @@ function(d3, $, date_format) {
 	_consolidatedMessage.auteur_id = 0 
 	_consolidatedMessage.nbJudge = 0 
 	_consolidatedMessage.message_id = 0 
+        _consolidatedMessage.dateCreation = 0 
 
 	heritableArray( _consolidatedMessage, 'criteria_average', [0,0,0,0] )
 	heritableArray( _consolidatedMessage, 'criteria_sum', [0,0,0,0] )
@@ -92,15 +94,18 @@ function(d3, $, date_format) {
 
 		for( var i = 0 ; i <  resultat.length ; i++ ) {
 			element = resultat[ i ] ; 
-			element.id = element.message_id + "_" + element.judge_id
+                    if( element == undefined ) continue
+		    element.id = element.message_id + "_" + element.judge_id
 			
 			//Create a new vote that consolidate all the criteria
 			if( ! votes.hasOwnProperty( element.id ) ) {
 				consolidatedVote            = Object.create( _consolidatedVote )
 				consolidatedVote.id         = element.id
 				consolidatedVote.auteur_id  = element.auteur_id
-				consolidatedVote.judge_id   = element.judge_id
+			    consolidatedVote.judge_id   = element.judge_id
 				consolidatedVote.message_id = element.message_id				
+                            consolidatedVote.dateGeneration = (new Date( element.dateMessage ) ).getTime()
+                            consolidatedVote.dateVote = (new Date( element.dateVote )).getTime() 
 				//Add vote to its consolidated result set
 				votes[ element.id ] = consolidatedVote ;
 			} 
@@ -121,7 +126,9 @@ function(d3, $, date_format) {
 				consolidatedMessage.auteur_id  = element.auteur_id
 				consolidatedMessage.auteur_name = element.auteur_name
 				consolidatedMessage.nbJudge 	 = 0				
+                            consolidatedMessage.dateCreation = (new Date( element.dateMessage)  ).getTime() 
 				//Add message to its consolidated result set
+
 				messages[ element.message_id ] = consolidatedMessage ;
 			}
 			//aggregate the vote		
@@ -228,7 +235,7 @@ function(d3, $, date_format) {
 
 
 
-		this.init() ; 
+	//	this.init() ; 
 		this.render()
 		
 	}
@@ -253,6 +260,7 @@ function(d3, $, date_format) {
 
 	date_format.extendPrototype();
 	visualisation.votesToCSV = function( filter, title ) {
+            console.log( "vote to CSV" ) ;
 		var votes = this.votes 
 			, resultat = "" 
 		for( var label in _consolidatedVote ){
@@ -279,6 +287,7 @@ function(d3, $, date_format) {
 	}
 
 	visualisation.messagesToCSV = function( filter, title ) {
+            console.log( "message to CSV" ) ;
 		var messages = this.messages 
 			, resultat = "" 
 		for( var label in _consolidatedMessage ){
@@ -306,6 +315,7 @@ function(d3, $, date_format) {
 
 
 	visualisation.userToCSV = function( filter, title ) {
+            console.log( "user to CSV" ) ;
 		var users = this.users 
 			, resultat = "" 
 		for( var label in _consolidatedUser ){
@@ -333,16 +343,16 @@ function(d3, $, date_format) {
 
 
 	function filterAll( ){ return true }
-
+    function withInterest( vote ){ return vote["criteria"][0] == 1 }
+    function withNoInterest( vote ){ return vote["criteria"][0] == 0 }
 
 	visualisation.makeAllCSV = function() {
-		this.votesToCSV( filterAll, "allVotes" ) ;
-		this.votesToCSV( function( vote ){ return vote["criteria"][0] == 1 }, "allVotesWithInteret" ) ;
-		this.votesToCSV( function( vote){  return vote["criteria"][0] == 0 }, "allVotesWithNoInteret" ) ;
-
-		this.messagesToCSV( filterAll, "allMessages" )
-
-		this.userToCSV( filterAll, "allUsers" )
+	    
+            setTimeout( this.votesToCSV.bind(this), 100, filterAll, "allVotes" ) ;
+	    setTimeout( this.votesToCSV.bind(this), 5000, withInterest, "allVotesWithInteret" ) ;
+	    setTimeout( this.votesToCSV.bind(this), 10000, withNoInterest,  "allVotesWithNoInteret" ) ;
+            setTimeout( this.messagesToCSV.bind(this),15000, filterAll, "allMessages" )
+            setTimeout( this.userToCSV.bind(this), 20000, filterAll, "allUsers" )
 	}
 
 	visualisation.toCSV = function() {

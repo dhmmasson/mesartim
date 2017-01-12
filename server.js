@@ -1,5 +1,10 @@
 var config = require('./configHeroku')
-  , express = require('express')
+  , argv = require('minimist')(process.argv.slice(2));
+
+if( argv.port != undefined ) config.port = argv.port ;
+if( argv.database != undefined ) config.database.database = argv.database ;
+
+var express = require('express')
   , app = express()
   , http = require('http').Server(app)
   , io = require('socket.io')(http)
@@ -17,7 +22,8 @@ var config = require('./configHeroku')
 //================================================================
 //configurations 
 //================================================================
-console.log(config)
+
+
 
 app.use( morgan( 'common' ) );
 app.use( cookieParser() )
@@ -94,11 +100,22 @@ function mesartimBd_pooled_query() {
 	var _arguments = [].splice.call(arguments,0)
 	//first argument is the request object
  	  , requete = _arguments.shift() ;
-	mesartimBd.getConnection( function(err, connection )  {
-		if( err ) return console.error("can't get a connection", compteur) ;
-		requete.sqlConnection = connection ; 
-		return connection.query.apply( connection, _arguments) ;
-	} )
+    console.log( "Get pooled query",  arguments.callee.caller.name, requete.sqlConnection != undefined ) ;
+    if( requete.sqlConnection != undefined ) 
+        return requete.sqlConnection.query.apply( requete.sqlConnection, _arguments) ;
+    mesartimBd.getConnection( function(err, connection )  {
+        connection.releaseProxy = function() {
+            console.log( "release connection " , arguments.callee.caller.name )
+            compteur -- ;
+            this.release() ;
+        }
+	if( err ) {
+            connection.releaseProxy() ;
+            return console.error("can't get a connection", err,  compteur) ;
+        }
+	requete.sqlConnection = connection ; 
+	return connection.query.apply( connection, _arguments) ;
+    } )
 }
 
 
@@ -150,6 +167,7 @@ function getSubmissionPage( requete, reponse ) {
 	getGridHeaders( requete, reponse, processGetSubmissionPage )	
 }
 function processGetSubmissionPage( requete, reponse, columnNames, rowNames ) {
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.render(   "phase1.pug", 
 		{ token : requete.token
 		, columnNames : requete.columnNames
@@ -170,7 +188,7 @@ function getRankPage( requete, reponse ) {
 	getAllInfoSeance( requete, reponse, processGetRankPage )
 }
 function processGetRankPage( requete, reponse, data ){
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	data.baseName = "grille"
 	reponse.render( "phase3", data ) ;
 }
@@ -179,7 +197,7 @@ function getAnnotationsFromUser( requete, reponse ) {
 	mesartimBd_pooled_query(requete, sqlGetVoteByUser, requete.decoded.user.id, wrapProcess( processGetAnnotationsFromUser, printAndSkip, requete, reponse ))
 }
 function processGetAnnotationsFromUser( requete, reponse, data ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( {
 		success:true
 	, result : data 
@@ -194,7 +212,7 @@ function getVotePage( requete, reponse ) {
 	getAllInfoSeance( requete, reponse, renderVotePage2 )
 }
 function renderVotePage2( requete, reponse, data ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()	
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()	
 	data.baseName = "grille"
 	reponse.render( "phase2", data ) ;
 }
@@ -208,7 +226,7 @@ function getSeanceNames( requete, reponse ) {
 	getGridHeaders( requete, reponse, processSeanceNames )
 }
 function processSeanceNames( requete, reponse, dimensionNames, columnNames, rowNames  ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( 
 	  { success:true
 	  , dimensionNames : dimensionNames 
@@ -270,7 +288,7 @@ function getAllMessageFromSeance( requete, reponse, callback ) {
 	
 }
 function processGetAllMessageFromSeance( requete, reponse, rows ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( 
 		{ success : true 
 		, result : rows }
@@ -292,7 +310,7 @@ function addMessage( requete, reponse ) {
 	mesartimBd_pooled_query(requete, sqlAddMessage, values, wrapProcess( processAddMessage, printAndSkip, requete, reponse ) ) ; 
 }
 function processAddMessage( requete, reponse, result ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( { success: true  
 								, result : result.insertId } )	
 }
@@ -304,7 +322,7 @@ function getMessagesBySeance( requete, reponse ) {
 	);	
 }
 function processGetMessagesBySeance( requete, reponse, rows ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( rows )	
 }
 
@@ -318,7 +336,7 @@ function getMessageById( requete, reponse ) {
 	);	
 }
 function processGetMessageById( requete, reponse, rows ) {
-		if( requete.sqlConnection ) requete.sqlConnection.release()
+		if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( { success: true  
 							  , result : rows } )	
 }
@@ -332,7 +350,7 @@ function getAllMessageFromUser( requete, reponse ) {
 
 }
 function processGetAllMessageFromUser( requete, reponse, rows ) {
-		if( requete.sqlConnection ) requete.sqlConnection.release()
+		if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( 
 		{ success : true 
 		, result : rows }
@@ -357,7 +375,7 @@ function annotateMessage( requete, reponse ) {
 	  
 }
 function processAnnotateMessage( requete, reponse, result ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 		reponse.json( {
 			success: true
 		, result : result } ) ;
@@ -374,7 +392,7 @@ function getAnnotationSeance( callback, requete, reponse ) {
 	mesartimBd_pooled_query(requete, sql, value, wrapProcess( callback, printAndSkip, requete, reponse ))
 }
 function processGetAnnotationSeance( requete, reponse, rows ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( {
 		success: true
 	, result : rows } )
@@ -388,7 +406,7 @@ function processGetAnnotationSeance( requete, reponse, rows ) {
 // }
 
 // function processGetAnnotation( requete, reponse, data ) {
-// 	releaseIfExists( requete.sqlConnection ) 
+// 	releaseProxyIfExists( requete.sqlConnection ) 
 // 		reponse.json( {
 // 		success: true
 // 	, result : data } )
@@ -402,7 +420,7 @@ function getAnnotations( requete, reponse ) {
 	//Bst annotation is a request that sort annotation by date, and then group by the "primary key (user,message,criteria)" 
   //select * from (select * from annotation group by id, datecreation order by datecreation desc) annotationByTime group by user_id, message_id, criteria_id
   var bestAnnotation = "(select * from annotation order by user_id, message_id, criteria_id, datecreation desc) bestAnnotation "
-    , sql = "SELECT message.id as message_id, message.text as message_text, bestAnnotation.user_id as judge_id, participation.user_id as auteur_id, CONCAT(COALESCE( user.sex, '' ), ' ', user.prenom, ' ', user.nom ) as auteur_name, criteria.id as criteria_id, criteria.description, bestAnnotation.value "
+    , sql = "SELECT message.id as message_id, message.text as message_text, bestAnnotation.user_id as judge_id, participation.user_id as auteur_id, CONCAT(COALESCE( user.sex, '' ), ' ', user.prenom, ' ', user.nom ) as auteur_name, criteria.id as criteria_id, criteria.description, bestAnnotation.value, message.dateModification as dateMessage, bestAnnotation.dateCreation as dateVote "
           + "FROM " + bestAnnotation 
           + "JOIN message       on bestAnnotation.message_id  = message.id "
           + "JOIN participation on message.participation_id   = participation.id "
@@ -415,7 +433,7 @@ function getAnnotations( requete, reponse ) {
     console.log( query )
 }
 function processGetAnnotations( requete, reponse, resultat ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( 
 		{ success : true 
 		, resultat : resultat 
@@ -454,7 +472,7 @@ function getParticipantsBySeance( requete, reponse ) {
 	);	
 }
 function processGetParticipantsBySeance( requete, reponse, reponse ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( rows )	
 }
 
@@ -519,7 +537,7 @@ function register( requete, reponse ) {
   requete.user.implantation = requete.body.implantation
   requete.user.adhesion = requete.body.adhesion
 
-	if( typeof requete.user.adhesion != "string")
+    if( requete.body.adhesion != undefined && typeof requete.body.adhesion.join == "function"  && typeof requete.user.adhesion != "string")
 		requete.user.adhesion  =  requete.body.adhesion.join(",")
 	
 	/**CLEAN UP : code dégueulasse **/
@@ -569,7 +587,7 @@ function createParticipation( requete, reponse ) {
 }
 
 function processNewParticapation( requete, reponse, result ){
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	requete.participation.id = result.insertId
 	//Should rather send a token 
 	token=jwt.sign( { user : requete.user, participation : requete.participation }
@@ -589,12 +607,12 @@ function requestListSeances( requete, reponse ){
 }
 
 function processRequestListSeances(requete, reponse, rows ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json( rows );
 }
 
 function tokenValid( requete, reponse ) {
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json({ success : true 
 							, token : requete.token 
 							, user : requete.decoded.user 
@@ -604,7 +622,7 @@ function tokenValid( requete, reponse ) {
 
 
 function printAndSkip ( err, requete ) { 
-	if( requete.sqlConnection ) requete.sqlConnection.release()
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	console.error( "\033[31m")
 	console.error( err ) 
 	console.error( "\033[0m")

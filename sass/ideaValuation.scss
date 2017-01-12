@@ -15,7 +15,7 @@ body {
 nav {
   margin-bottom: 1rem ;
   li.active {
-    background :  $light-background;
+   background :  $light-background;
   }
 }
 
@@ -36,7 +36,9 @@ nav {
   color : color("green", "lighten-2");
 }
 
-
+.row.hidden {
+            display:none ;
+}
 
 .idea {
   .voted, .interested{

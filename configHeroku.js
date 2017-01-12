@@ -1,11 +1,14 @@
 module.exports = 
-{  secret : process.env.SECRET     					|| "Z7nQTFhYP7inCTJbOqG4mjw0avs1jnHw"           
-, database: {  host: process.env.SQL_HOST      		|| "localhost"
-            ,  user: process.env.SQL_USER     		|| "root"
-            ,  password: process.env.SQL_PASSWORD   || "" //9awHDSYSmLESuDZt
-            ,  database: process.env.SQL_DATABASE   || "ideavaluation"  
-            , multipleStatements: true
-            , connectionLimit : 1000
-            }
-, port : process.env.PORT || 5009
+{	secret : "it4IsG6uTKyn17nqucTnkmLS8kckboZu"		 
+, database: {	host:  "127.0.0.1" 		 
+	    ,	user:  "ideavaluation"		 
+	    ,	password: process.env.SQL_PASSWORD   || "mesartim"
+	    ,	database: process.env.SQL_DATABASE    || "ideavaluation"
+	    , multipleStatements: true
+                , connectionLimit : 100
+                , queueLimit : 10
+                , waitForConnections : true 
+                , acquireTimeout : 3000
+						}
+, port : process.env.PORT 
 };
