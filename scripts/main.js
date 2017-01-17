@@ -217,7 +217,7 @@ function categoryChosen( e ) {
 
 
 function changeTitle( rowName, columnName ){
-  var titre = "catégorie selectionnée : "+ rowName + "/" + columnName 
+  var titre = "Category selected : "+ rowName + "/" + columnName 
   $("#sectionSelectionTitle").text( titre )
   titre = "Add Idea to category : " + rowName+ "/" + columnName
   $("#addIdeaTitle")
