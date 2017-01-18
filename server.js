@@ -535,7 +535,7 @@ function register( requete, reponse ) {
   requete.user.jobtype = requete.body.jobtype
   requete.user.motivation = requete.body.motivation
   requete.user.implantation = requete.body.implantation
-  requete.user.adhesion = requete.body.adhesion
+  requete.user.sex = requete.body.sex
 
     if( requete.body.adhesion != undefined && typeof requete.body.adhesion.join == "function"  && typeof requete.user.adhesion != "string")
 		requete.user.adhesion  =  requete.body.adhesion.join(",")
@@ -554,7 +554,7 @@ function updateOrCreateUser( requete, reponse ){
 
 function processUpdateOrCreateUser( requete, reponse, rows ) {
 	console.log( "seance",  requete.body.seanceId )
-	if( rows.length > 0 ) {
+	if( rows.length > 0 ) {
 		requete.user.id = rows[0].id ; 
 		requete.participation = {
 		  	  user_id : requete.user.id
@@ -567,6 +567,7 @@ function processUpdateOrCreateUser( requete, reponse, rows ) {
 }
 
 function createUser( requete, reponse ) {
+    console.log( requete.user ) 
 	mesartimBd_pooled_query(requete, 'INSERT INTO user SET ?', requete.user
 		     , wrapProcess( processNewUser, printAndSkip, requete, reponse )
 	)		

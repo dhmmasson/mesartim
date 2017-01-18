@@ -493,7 +493,7 @@ function(d3, $, date_format) {
 			, header = $(document.createElement( "thead" ) ) 
 			, body   = $(document.createElement( "tbody" ) ) 
 
-		header.append( createRow( ["#idée", "auteur", "description", "score" ], true ) ) ; 
+		header.append( createRow( ["#Idea", "Author", "Description", "Score" ], true ) ) ; 
 		var array = get5Best( messages, attribute, criteria ) ; 
 		for( var i = array.length - 1 ; i >= 0 ; i-- ) {
 			var message = array[i] 
