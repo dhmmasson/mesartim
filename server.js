@@ -419,8 +419,8 @@ function processGetAnnotationSeance( requete, reponse, rows ) {
 function getAnnotations( requete, reponse ) {
 	//Bst annotation is a request that sort annotation by date, and then group by the "primary key (user,message,criteria)" 
   //select * from (select * from annotation group by id, datecreation order by datecreation desc) annotationByTime group by user_id, message_id, criteria_id
-  var bestAnnotation = "(select * from annotation order by user_id, message_id, criteria_id, datecreation desc) bestAnnotation "
-    , sql = "SELECT message.id as message_id, message.text as message_text, bestAnnotation.user_id as judge_id, participation.user_id as auteur_id, CONCAT(COALESCE( user.sex, '' ), ' ', user.prenom, ' ', user.nom ) as auteur_name, criteria.id as criteria_id, criteria.description, bestAnnotation.value, message.dateModification as dateMessage, bestAnnotation.dateCreation as dateVote "
+  var bestAnnotation = "(select annotation.*, user.email as judge_email,  CONCAT(COALESCE( user.sex, '' ), ' ', user.prenom, ' ', user.nom ) as judge_name from annotation join user on annotation.user_id = user.id order by user_id, message_id, criteria_id, datecreation desc) bestAnnotation "
+    , sql = "SELECT message.id as message_id, message.text as message_text, bestAnnotation.user_id as judge_id, participation.user_id as auteur_id, user.email as auteur_email, CONCAT(COALESCE( user.sex, '' ), ' ', user.prenom, ' ', user.nom ) as auteur_name, criteria.id as criteria_id, criteria.description, bestAnnotation.value, message.dateModification as dateMessage, bestAnnotation.dateCreation as dateVote, bestAnnotation.judge_email, bestAnnotation.judge_name "
           + "FROM " + bestAnnotation 
           + "JOIN message       on bestAnnotation.message_id  = message.id "
           + "JOIN participation on message.participation_id   = participation.id "
@@ -429,6 +429,8 @@ function getAnnotations( requete, reponse ) {
           + "WHERE participation.seance_id = ? "
     , seance = requete.query.seance || requete.decoded.participation.seance_id 
     
+    console.log( sql ) 
+
     query = mesartimBd_pooled_query( requete, sql, seance, wrapProcess( processGetAnnotations, printAndSkip, requete, reponse ) ) ;
     console.log( query )
 }

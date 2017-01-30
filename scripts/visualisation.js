@@ -28,6 +28,11 @@ function(d3, $, date_format) {
 	_consolidatedMessage.nbJudge = 0 
 	_consolidatedMessage.message_id = 0 
         _consolidatedMessage.dateCreation = 0 
+    _consolidatedMessage.judge_interested = "" 
+    _consolidatedMessage.auteur_email = ""
+    _consolidatedMessage.auteur_name = ""
+_consolidatedMessage.message_text = "" 
+    _consolidatedMessage.averageOfAverage = [0,0,0,0] 
 
 	heritableArray( _consolidatedMessage, 'criteria_average', [0,0,0,0] )
 	heritableArray( _consolidatedMessage, 'criteria_sum', [0,0,0,0] )
@@ -125,6 +130,7 @@ function(d3, $, date_format) {
 				consolidatedMessage.id 				 = element.message_id
 				consolidatedMessage.auteur_id  = element.auteur_id
 				consolidatedMessage.auteur_name = element.auteur_name
+			    consolidatedMessage.auteur_email = element.auteur_email
 				consolidatedMessage.nbJudge 	 = 0				
                             consolidatedMessage.dateCreation = (new Date( element.dateMessage)  ).getTime() 
 				//Add message to its consolidated result set
@@ -134,6 +140,7 @@ function(d3, $, date_format) {
 			//aggregate the vote		
 			consolidatedMessage = messages[ element.message_id ] 
 			consolidatedMessage.criteria_sum[ element.criteria_id ] += element.value 	
+                    if( element.criteria_id == 0 && element.value == 1 ) consolidatedMessage.judge_interested += element.judge_name + ":" +  element.judge_email + "%"
 			consolidatedMessage.criteria_min[ element.criteria_id ] = Math.min( consolidatedMessage.criteria_min[ element.criteria_id ] ,  element.value 	) 
 			consolidatedMessage.criteria_max[ element.criteria_id ] = Math.max( consolidatedMessage.criteria_max[ element.criteria_id ] ,  element.value 	) 
 			consolidatedMessage.criteria_count[ element.criteria_id ] ++			
@@ -249,7 +256,7 @@ function(d3, $, date_format) {
     document.body.appendChild(a);
     a.style = "display: none";
     return function (data, fileName) {
-        var blob = new Blob( [data], {type: "octet/stream"}),
+        var blob = new Blob( [data], {encoding:"UTF-8", type: "text/plain;charset=UTF-8"}),
             url = window.URL.createObjectURL(blob);
         a.href = url;
         a.download = fileName;
@@ -265,13 +272,13 @@ function(d3, $, date_format) {
 			, resultat = "" 
 		for( var label in _consolidatedVote ){
 			if( _consolidatedVote[label].length > 0 ) {
-				for( var i = 0 ; i <  _consolidatedVote[label].length ; i++) 	resultat += label +"_"+i + "," ;
+				for( var i = 0 ; i <  _consolidatedVote[label].length ; i++) 	resultat += label +"_"+i + "~" ;
 			} else { 
 				resultat += label + "," ;
 			}
 		}
 		resultat = resultat.slice(0,-1) ;
-		resultat +="\n" ;
+		resultat +="\r\n" ;
 		
 		for( var i in votes ) {
 			if( filter( votes[i] )){
@@ -280,7 +287,7 @@ function(d3, $, date_format) {
 					resultat += votes[i][ label ] + "," ;
 				}
 				resultat = resultat.slice(0,-1) ;
-				resultat +="\n" ;
+				resultat +="\r\n" ;
 			}
 		}
 		saveData( resultat, title + "_"+( ( new Date() ).format('Y-m-d_Hi'))+".csv")
@@ -290,11 +297,26 @@ function(d3, $, date_format) {
             console.log( "message to CSV" ) ;
 		var messages = this.messages 
 			, resultat = "" 
+
+            averageOfAverages = [0,0,0,0] ;
+            for( var i in messages ) {
+                var message = messages[ i ] 
+                for( var j in message.criteria_average ) {
+                    averageOfAverages[ j ] += message.criteria_average[ j ] / messages.length 
+                }
+                message.averageOfAverage = averageOfAverages ;
+                message.message_text =   message.message_text.replace( /"/g, "\"\"" ) 
+                message.judge_interested = message.judge_interested.trim()  
+            }
+
+
+
+
 		for( var label in _consolidatedMessage ){
 			if( _consolidatedMessage[label].length > 0 ) {
-				for( var i = 0 ; i <  _consolidatedMessage[label].length ; i++) 	resultat += label +"_"+i + "," ;
+				for( var i = 0 ; i <  _consolidatedMessage[label].length ; i++) 	resultat += "\"" + label +"_"+i + "\"," ;
 			} else { 
-				resultat += label + "," ;
+				resultat += "\"" +  label + "\"," ;
 			}
 		}
 		resultat = resultat.slice(0,-1) ;
@@ -304,10 +326,13 @@ function(d3, $, date_format) {
 			if( filter( messages[i] )){
 				//Push value for all label in right order
 				for( var label in _consolidatedMessage ){				
-					resultat += messages[i][ label ] + "," ;
+                                    if( typeof messages[i][label] != "string" && messages[i][ label ].length > 0 ) 
+                                        for( l in messages[i][ label ] )  resultat += "\"" + messages[i][ label ][l] + "\"," ;
+                                    else 
+					resultat += "\"" + messages[i][ label ] + "\"," ;
 				}
 				resultat = resultat.slice(0,-1) ;
-				resultat +="\n" ;
+				resultat +="\r\n" ;
 			}
 		}
 		saveData( resultat, title + "_"+( ( new Date() ).format('Y-m-d_Hi'))+".csv")
@@ -320,9 +345,9 @@ function(d3, $, date_format) {
 			, resultat = "" 
 		for( var label in _consolidatedUser ){
 			if( _consolidatedUser[label].length > 0 ) {
-				for( var i = 0 ; i <  _consolidatedUser[label].length ; i++) 	resultat += label +"_"+i + "," ;
+				for( var i = 0 ; i <  _consolidatedUser[label].length ; i++) 	resultat += "\"" + label +"_"+i + "\"," ;
 			} else { 
-				resultat += label + "," ;
+				resultat += "\""+ label + "\"," ;
 			}
 		}
 		resultat = resultat.slice(0,-1) ;
