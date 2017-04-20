@@ -11,6 +11,50 @@ body {
 }
 
 
+.flex{
+		display: flex;
+		flex-flow: row wrap;
+
+		padding: 0.75rem 0 0 0.75rem !important;
+}
+.screenedElement{
+		display: block;
+		width: 4.5em;
+		margin: 0 0.75rem 0.75rem 0;
+		font-size: 1.6rem;
+
+		font-style: italic;
+}
+.color_1 {
+		background : $primary-color ;
+		&.btn:hover{
+				background : $primary-color-light ;
+		}
+		&.btn:focus{
+				background : $primary-color-dark ;
+		}
+}
+.color_2 {
+		background : $secondary-color ;
+		&.btn:hover{
+				background : $secondary-color-light ;
+		}
+		&.btn:focus{
+				background : $secondary-color-dark ;
+		}
+}
+.color_0 {
+		background : $mute-color ;
+		&.btn:hover{
+				background : $mute-color-light ;
+		}
+		&.btn:focus{
+				background : $mute-color-dark ;
+		}
+
+}
+
+
 
 nav {
   margin-bottom: 1rem ;

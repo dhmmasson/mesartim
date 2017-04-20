@@ -1,0 +1,22 @@
+extends ./layout.pug
+block content
+  .row
+    .col.s12.m9
+      .row
+        .mesartimIdeaList.valign-wrapper
+          i#messageId 
+          span.ideaText.valign#messageText Loading message....
+      .row
+        -
+          screenOptions = [ {id : 1, description : "Vote" } ,{id : 2, description : "Discuss" } ]
+          size = "s"+ Math.floor(12 / screenOptions.length)
+        each type in screenOptions
+          .col( class=size )
+            button.option.waves-effect.waves-light.btn-large( style="width:100%", data-value=type.id, class="color_"+type.id)= type.description 
+      .row
+        .col.s12
+          button.option.waves-effect.waves-light.btn-large.col.s12.color_0 skip
+    .col.s12.m3.z-depth-1.flex#previousScreen
+
+ 
+        

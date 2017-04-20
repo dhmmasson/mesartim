@@ -45,21 +45,32 @@ var apiRoutes = express.Router();
 apiRoutes.use( checkAuthentication ) ; 
 
 
-apiRoutes.get( '/seance/:id/participants', getParticipantsBySeance ) ; 
+http://9gag.com/gag/aNArXyw
+apiRoutes.get( '/seance/:id/participants', getParticipantsBySeance ) ;
 apiRoutes.get( '/seance/:id/messages', getMessagesBySeance ) ;
+apiRoutes.get( '/seance/:id(\\d+)/title', getSeanceTitle ) ;
+apiRoutes.get( '/seance/monitor', getSeanceToMonitor ) ;
 apiRoutes.get( '/seance/names', getSeanceNames ) ;
 
 apiRoutes.post( '/message/new', upload.array(), addMessage ) ;
 apiRoutes.post( '/message/:id/annotate',  upload.array(), annotateMessage );
 apiRoutes.get(  '/message/id/:id', getMessageById );
+apiRoutes.get(  '/message/mine', getAllMessageFromUser );
+apiRoutes.get(  '/message/all', proxyGetAllMessageFromSeance );
+apiRoutes.get(  '/message/count/:team?/:interval(\\d+|beginning)?', getMessageCountByTeam ) ;
+
 
 apiRoutes.get( '/annotations/all', getAnnotations ) ;
 apiRoutes.get( '/annotations/mine', getAnnotationsFromUser ) ;
 
-apiRoutes.get( '/message/mine', getAllMessageFromUser );
-apiRoutes.get( '/message/all', proxyGetAllMessageFromSeance );
-
 apiRoutes.get( '/tokenValid', tokenValid ) ;
+
+apiRoutes.post( '/screen/next', upload.array(), insertScreenMessage ) ;
+apiRoutes.get( '/screen/first', upload.array(), getNextScreen ) ;
+apiRoutes.get( '/screen/mine', getMyScreen ) ;
+apiRoutes.get( '/screen/:id(\\d+)', getSpecificScreenMessage ) ;
+
+
 
 app.get( '/seance', requestListSeances );
 app.post('/register', upload.array(), register ) ;
@@ -69,6 +80,7 @@ app.use( '/vote', checkAuthentication, getVotePage )
 app.use( '/generation', checkAuthentication, getSubmissionPage )
 app.use( '/login', getLogin )
 app.use( '/rank', checkAuthentication, getRankPage ) ;
+app.use( '/screen', checkAuthentication, getScreen ) ;
 
 app.use( '/admin', checkAuthentication, getAdminPage ) ; 
 
@@ -134,7 +146,7 @@ var sqlAddMessage = 'INSERT INTO message ( participation_id, text, `row_id`, `co
 	, sqlColumName = 'SELECT position, id, title FROM `columnname` WHERE ? ORDER BY position ASC'
 	, sqlRowName  = 'SELECT position, id, title FROM `rowname` WHERE ? ORDER BY position ASC'
 	, sqlAllMessage 
-					= 'SELECT `message`.`id`, `text`, `rowname`.`position` as row_position, `columnname`.`position` as column_position, `datemodification`\n' 
+					= 'SELECT `message`.`id`, `text`, `rowname`.`position` as row_position, `columnname`.`position` as column_position, `datemodification`, participation.user_id as auteur_id\n' 
 		+ ' ' + 'FROM `message`\n'
 		+ ' ' + 'JOIN `participation` ON participation_id = participation.id\n'
 		+ ' ' + 'JOIN `columnname` ON column_id = columnname.id\n'
@@ -191,7 +203,7 @@ function processGetRankPage( requete, reponse, data ){
 	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	data.baseName = "grille"
 	reponse.render( "phase3", data ) ;
-}
+ }
 
 function getAnnotationsFromUser( requete, reponse ) {
 	mesartimBd_pooled_query(requete, sqlGetVoteByUser, requete.decoded.user.id, wrapProcess( processGetAnnotationsFromUser, printAndSkip, requete, reponse ))
@@ -221,6 +233,39 @@ function renderVotePage2( requete, reponse, data ) {
 //SEANCE
 //================================================================
 
+
+function getSeanceToMonitor( requete, reponse ) {
+	var fakeData =
+			{
+				"user": {
+					"nom": "Tappou",
+					"prenom": "Robin",
+					"entreprise": "estia",
+					"email": "r.tappou@net.estia.fr",
+					"ageRange": "17",
+					"lastDiploma": "1",
+					"organism": "ETI",
+					"jobtype": "EXP",
+					"motivation": "RES",
+					"implantation": "RE1",
+					"sex": "male",
+					"id": 0
+				},
+				"participation": {
+					"user_id": 0,
+					"seance_id": 4, //TODO find the current seance Id 
+					"id": 0
+				}
+			}
+			
+
+	reponse.send(  jwt.sign( fakeData
+												 , app.get('secret')
+												 , { expiresIn: "8d" // expires in 24 hours
+													 }
+												 )
+							) ; 
+}
 
 function getSeanceNames( requete, reponse ) {
 	getGridHeaders( requete, reponse, processSeanceNames )
@@ -323,9 +368,39 @@ function getMessagesBySeance( requete, reponse ) {
 }
 function processGetMessagesBySeance( requete, reponse, rows ) {
 	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
-	reponse.json( rows )	
+	reponse.json( { success : true, resultat : rows } )	
 }
 
+
+function getMessageCountByTeam( requete, reponse ) {
+	var values=[1,2,3,5,7,8,8,9,7,5,3,2,1,2,3,5,6,7,6,7,5,7,9,7,6,5,4,2,5,6,4,3,4,5,4,5,4,3,4,6,5,6,7,6,5,6,7,8,9,10,11,9,8,6,4,3,1,3,2,1,0,0]
+	if( requete.params.team == "PURPLE" ) return reponse.status(200).send( ""+ values[ (new Date()).getMinutes() ] )
+	var sql= "SELECT count(message.id) as count \n"  
+	    +    "FROM message \n"
+			+    "JOIN participation ON participation_id = participation.id \n"
+	    +    "JOIN user          ON user_id = user.id \n"
+	    +    "WHERE seance_id = ? "
+	,	values = [requete.decoded.participation.seance_id]
+	if(requete.params.team != undefined && requete.params.team != 'all' ) {
+		sql += "AND adhesion = ? "
+		values.push( requete.params.team ) 
+	}
+	if(requete.params.interval != "beginning" ) {
+		sql += "AND (CURRENT_TIMESTAMP - message.datemodification ) < ? " 
+		values.push( (requete.params.interval || 300 ) ) 
+	}
+	var sqlFormat = mysql.format( sql, values )  
+	console.log( sqlFormat ) 
+	q = mesartimBd_pooled_query(requete,  sqlFormat, wrapProcess(  processGetMessageCountByTeam, printAndSkip, requete, reponse )) ;    
+
+};
+
+function processGetMessageCountByTeam( requete, reponse, data ) {
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
+	console.log( data ) 
+	reponse.status(200).send( ""+ data[0].count ) 
+}
+									
 //get message by Id
 function getMessageById( requete, reponse ) {
 	var values = {id : requete.params.id}	
@@ -355,6 +430,67 @@ function processGetAllMessageFromUser( requete, reponse, rows ) {
 		{ success : true 
 		, result : rows }
 		) ; 
+}
+
+function getMyScreen( requete, reponse ) {
+	var sql = "SELECT message_id as id, screentype_id as value FROM screen WHERE participation_id = ? ORDER BY datecreation" ;
+	mesartimBd_pooled_query( requete, { sql : sql, values : requete.decoded.participation.id }, wrapProcess( processGetMyScreen, printAndSkip, requete, reponse ) ) ;
+}
+
+function processGetMyScreen( requete, reponse, data ) {
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
+	if( data.length > 0 )
+		reponse.json( { success : true , screen : data } )
+	if( data.length == 0 )
+		reponse.json( { success : false , screen : [] } )    
+
+}
+
+function insertScreenMessage( requete, reponse ) {
+	var values = {
+		message_id : requete.body.id
+		, participation_id : requete.decoded.participation.id
+		, screenType_id : requete.body.value
+	}
+	, sql= "INSERT INTO screen SET ? ON DUPLICATE KEY UPDATE datecreation=NOW(), screentype_id = VALUES( screentype_id ) ;"
+
+	mesartimBd_pooled_query(requete, { sql : sql, values :  values }, wrapProcess( processScreenMessage, printAndSkip, requete, reponse ) ) ;  
+}
+
+function processScreenMessage( requete, reponse ) {
+	//if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
+	getNextScreen( requete, reponse ) ;
+}
+
+function getSpecificScreenMessage( requete, reponse  ) {
+	var	sql = "select id, text as description from message where id = ?"
+	, value = requete.params.id
+
+	mesartimBd_pooled_query(requete, { sql : sql, values : value }, wrapProcess( processGetNextScreen, printAndSkip, requete, reponse ) ) ;     
+}
+function getNextScreen( requete, reponse ) {
+//Get the message id and description of the next message to be screened by the current participant
+	var sql= "select message.id as id , message.text as description" + "\n"
+	+ "from screen" + "\n"
+	+ "right join message on message.id = message_id" + "\n"
+	+ "where  message.participation_id != ?" + "\n"
+	+ "group by message.id" + "\n"
+	+ "having message.id not in ( select message_id from screen where participation_id = ? )" + "\n"
+	+ "order by count(*) asc" + "\n"
+	+ "limit 1" + ";"
+	, participationId = requete.decoded.participation.id 
+
+	mesartimBd_pooled_query(requete, { sql : sql, values :  [participationId, participationId ] }, wrapProcess( processGetNextScreen, printAndSkip, requete, reponse ) ) ;
+	
+}
+
+function processGetNextScreen( requete, reponse, data ) {
+  if( requete.sqlConnection ) requete.sqlConnection.releaseProxy() 
+	if( data.length > 0 ) 
+		reponse.json( { success : true , message : data[0] } )
+	if( data.length == 0 )
+		reponse.json( { success : "done" , message : {} } )
+	
 }
 
 function annotateMessage( requete, reponse ) {
@@ -419,12 +555,13 @@ function processGetAnnotationSeance( requete, reponse, rows ) {
 function getAnnotations( requete, reponse ) {
 	//Bst annotation is a request that sort annotation by date, and then group by the "primary key (user,message,criteria)" 
   //select * from (select * from annotation group by id, datecreation order by datecreation desc) annotationByTime group by user_id, message_id, criteria_id
-  var bestAnnotation = "(select annotation.*, user.email as judge_email,  CONCAT(COALESCE( user.sex, '' ), ' ', user.prenom, ' ', user.nom ) as judge_name from annotation join user on annotation.user_id = user.id order by user_id, message_id, criteria_id, datecreation desc) bestAnnotation "
-    , sql = "SELECT message.id as message_id, message.text as message_text, bestAnnotation.user_id as judge_id, participation.user_id as auteur_id, user.email as auteur_email, CONCAT(COALESCE( user.sex, '' ), ' ', user.prenom, ' ', user.nom ) as auteur_name, criteria.id as criteria_id, criteria.description, bestAnnotation.value, message.dateModification as dateMessage, bestAnnotation.dateCreation as dateVote, bestAnnotation.judge_email, bestAnnotation.judge_name "
+  var bestAnnotation = "(select annotation.*, user.email as judge_email, user.sex as judge_sex,  CONCAT( user.prenom, ' ', user.nom ) as judge_name from annotation join user on annotation.user_id = user.id order by user_id, message_id, criteria_id, datecreation desc) bestAnnotation "
+    , sql = "SELECT message.id as message_id, message.text as message_text, bestAnnotation.user_id as judge_id, participation.user_id as auteur_id, user.email as auteur_email, user.sex as auteur_sex,  CONCAT( user.prenom, ' ', user.nom ) as auteur_name, criteria.id as criteria_id, criteria.description, bestAnnotation.value, message.dateModification as dateMessage, bestAnnotation.dateCreation as dateVote, bestAnnotation.judge_email, bestAnnotation.judge_sex, bestAnnotation.judge_name "
           + "FROM " + bestAnnotation 
-          + "JOIN message       on bestAnnotation.message_id  = message.id "
+	          + "JOIN criteria      on bestAnnotation.criteria_id = criteria.id "
+      + "RIGHT JOIN message       on bestAnnotation.message_id  = message.id "
           + "JOIN participation on message.participation_id   = participation.id "
-          + "JOIN criteria      on bestAnnotation.criteria_id = criteria.id "
+
           + "JOIN user      		on participation.user_id 			= user.id "
           + "WHERE participation.seance_id = ? "
     , seance = requete.query.seance || requete.decoded.participation.seance_id 
@@ -443,7 +580,7 @@ function processGetAnnotations( requete, reponse, resultat ) {
 }
 
 //================================================================
-//PARTICIPANTS
+//ADMIN
 //================================================================
 function getAdminPage( requete, reponse ) {
 		var sql = "SELECT id, description, type"
@@ -458,14 +595,24 @@ function processGetAdminPage( requete, reponse, data ) {
 }
 
 //================================================================
+//ADMIN
+//================================================================
+function getScreen( requete, reponse ) {
+    reponse.render( "screen" ) ;
+}
+
+
+
+
+//================================================================
 //PARTICIPANTS
 //================================================================
 //get all participants for a seance
 function getParticipantsBySeance( requete, reponse ) {
 	var values = {seance_id : requete.params.id || requete.decoded.participation.seance_id}	
-	mesartimBd_pooled_query(requete, 	{ sql : 'SELECT user.*' 
+	mesartimBd_pooled_query(requete, 	{ sql : 'SELECT user.*, participation.id as participation_id ' 
 				+ ' ' + 'FROM user'
-				+ ' ' + 'JOIN participation ON participation_id 	= participation.id'
+				+ ' ' + 'JOIN participation ON user_id 	= user.id'
 				//+ ' ' + 'JOIN seance        ON seance_id 		= seance.id'  
 				+ ' ' + 'WHERE ?'
 			   , values :  values
@@ -473,9 +620,9 @@ function getParticipantsBySeance( requete, reponse ) {
 			   , wrapProcess( processGetParticipantsBySeance, printAndSkip, requete, reponse )
 	);	
 }
-function processGetParticipantsBySeance( requete, reponse, reponse ) {
+function processGetParticipantsBySeance( requete, reponse, rows ) {
 	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
-	reponse.json( rows )	
+	reponse.json( {success: true, resultat : rows }) ;	
 }
 
 
@@ -614,6 +761,19 @@ function processRequestListSeances(requete, reponse, rows ) {
 	reponse.json( rows );
 }
 
+function getSeanceTitle( requete, reponse ){
+	mesartimBd_pooled_query(requete, 'SELECT titre FROM seance WHERE id='+requete.params.id 
+			 , wrapProcess( processGetSeanceTitle, printAndSkip, requete, reponse)
+		);	
+}
+
+function processGetSeanceTitle(requete, reponse, rows ) {
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
+	reponse.json(
+	{success : true
+	 , result : rows[0]} );
+}
+
 function tokenValid( requete, reponse ) {
 	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()
 	reponse.json({ success : true 
@@ -655,7 +815,7 @@ function checkAuthentication(requete, reponse, next) {
     // verifies secret and checks exp
     jwt.verify(token, app.get('secret'), wrapProcess( authenticationValid, authenticationInvalid, requete, reponse, next ));
   } else {
-    // if there is no token
+    // if tmhere is no token
     // return an error
     noTokenFound( requete, reponse ) ;     
   }

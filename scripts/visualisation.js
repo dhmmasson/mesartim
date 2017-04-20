@@ -542,7 +542,7 @@ _consolidatedMessage.message_text = ""
 		//WE only need the 5 best 
 		for( var i = 0 ; i < 5 ; i++ ) {
 			for( var j = 0 ; j < localArray.length - i - 1; j++ ) {
-				if( localArray[j][ attribute ][ criteria ] > localArray[j+1][ attribute ][ criteria ] ) swapArray( localArray, j, j+1 ) ;				
+				if( localArray[j][ attribute ][ criteria ] > localArray[j+1][ attribute ][ criteria ] ) swapArray( localArray, j, j+1 ) ;				
 			}
 		}
 		return localArray.slice(-5) ;
@@ -560,7 +560,52 @@ _consolidatedMessage.message_text = ""
 		root.append( createTable( this.messages, "TOP 5: the most divergent ideas in terms of ORIGINALITY (on average)", 1, "criteria_stddev" )  )
 		root.append( createTable( this.messages, "TOP 5: the most divergent ideas in terms of FEASIBILITY (on average)", 2, "criteria_stddev" )  )
 		root.append( createTable( this.messages, "TOP 5: the most divergent ideas in terms of POTENTIALITY (on average)", 3, "criteria_stddev" )  )
+
+		sessionAvg = [0,0,0,0]
+
+		for( var i in this.messages ) {
+			sessionAvg[ 1 ] += this.messages[ i ].criteria_average[ 1 ] / this.messages.length
+			sessionAvg[ 2 ] += this.messages[ i ].criteria_average[ 2 ] / this.messages.length
+			sessionAvg[ 3 ] += this.messages[ i ].criteria_average[ 3 ] / this.messages.length 
+		}
+
+		sessionAvg[1]=Math.floor( sessionAvg[1] * 10 ) / 10
+		sessionAvg[2]=Math.floor( sessionAvg[2] * 10 ) / 10
+		sessionAvg[3]=Math.floor( sessionAvg[3] * 10 ) / 10 
+		console.log( this.users )
+
+		nbUser= 0 
+		for( var i in this.users ) {
+			nbUser++ 
+		}
 		
+		str = ""
+		for( var i in this.messages ) {
+			var message = this.messages[i] 
+			var id = message.id
+			, description = message.message_text
+			, author = message.auteur_name 
+			, numberOfInterestedParticipant = message.criteria_count[0]
+			, mailInterested = message.judge_interested.replace(/%/g, "<br>" ).replace( /\:[^<]*<br>/g, ",<br>" )  
+			, scoreTotal = message.criteria_average[1] + message.criteria_average[2] + message.criteria_average[3]
+			
+			str+= "<tr class="+((message.criteria_count[1]/nbUser < 0.5 )?"risky":"") +">"
+			str+= "<td>" + id + "</td>"
+			str+= "<td>" + description + "</td>"
+			str+= "<td>" + author + "</td>"
+			str+= "<td>" + numberOfInterestedParticipant + "</td>"
+			str+= "<td>" + mailInterested + "</td>"
+			str+= "<td>" + ( Math.floor( scoreTotal * 10 ) /10)  + "</td>"
+			str+= "<td>" + Math.floor( 100 * message.criteria_average[1] / sessionAvg[1]) + "</td>"
+			str+= "<td>" + Math.floor( 100 *message.criteria_average[2] / sessionAvg[2]) + "</td>"
+			str+= "<td>" + Math.floor( 100 *message.criteria_average[3] / sessionAvg[3]) + "</td>"
+			str+= "<td>" + message.criteria_count[1] + "</td>"
+			str+= "</tr>"
+		}
+
+
+		$("#superTable tbody").append( str ) ;
+		$("#superTable").tablesorter();
 	}
 
 
