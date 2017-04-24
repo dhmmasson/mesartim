@@ -81,7 +81,7 @@ app.use( '/generation', checkAuthentication, getSubmissionPage )
 app.use( '/login', getLogin )
 app.use( '/rank', checkAuthentication, getRankPage ) ;
 app.use( '/screen', checkAuthentication, getScreen ) ;
-
+app.use( '/screenResult', checkAuthentication, getScreenResult) ; 
 app.use( '/admin', checkAuthentication, getAdminPage ) ; 
 
 app.use( '/', getLogin )
@@ -228,6 +228,36 @@ function renderVotePage2( requete, reponse, data ) {
 	data.baseName = "grille"
 	reponse.render( "phase2", data ) ;
 }
+//================================================================
+//Screen result 
+//================================================================
+function getScreenResult( requete, reponse ) {
+	getAllInfoSeance( requete, reponse, getScreenInfo )
+}
+function getScreenInfo( requete, reponse, data ){
+	requete._data = data
+	var seanceId = requete.decoded.participation.seance_id 
+	, sql = "SELECT message_id, screentype.description, rowname.position as rowPosition, columnname.position as colPosition  ,  count(*) as count \
+FROM screen \
+JOIN screentype on screentype_id = screentype.id \
+JOIN message on message_id = message.id \
+JOIN columnname on column_id = columnname.id \
+JOIN rowname on row_id = rowname.id \
+JOIN participation on message.participation_id = participation.id  \
+WHERE participation.seance_id = ? \
+GROUP BY message_id, screentype.id ;"
+	mesartimBd_pooled_query(requete, sql, seanceId, wrapProcess( renderScreenResult, printAndSkip, requete, reponse ) )
+}
+
+function renderScreenResult( requete, reponse, data ) {
+	if( requete.sqlConnection ) requete.sqlConnection.releaseProxy()	
+	var data2 = requete._data
+	data2.screen = data 
+	data2.baseName = "grille"
+	reponse.render( "screenResult", data2 ) ;
+}
+
+
 
 //================================================================
 //SEANCE
