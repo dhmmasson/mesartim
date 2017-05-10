@@ -44,13 +44,16 @@ var apiRoutes = express.Router();
 
 apiRoutes.use( checkAuthentication ) ; 
 
+apiRoutes.get( '/seance/list', requestListSeances );
+apiRoutes.get( '/seance/:id/token', getSeanceToMonitor ) ; 
 
-http://9gag.com/gag/aNArXyw
 apiRoutes.get( '/seance/:id/participants', getParticipantsBySeance ) ;
 apiRoutes.get( '/seance/:id/messages', getMessagesBySeance ) ;
 apiRoutes.get( '/seance/:id(\\d+)/title', getSeanceTitle ) ;
 apiRoutes.get( '/seance/monitor', getSeanceToMonitor ) ;
 apiRoutes.get( '/seance/names', getSeanceNames ) ;
+
+
 
 apiRoutes.post( '/message/new', upload.array(), addMessage ) ;
 apiRoutes.post( '/message/:id/annotate',  upload.array(), annotateMessage );
@@ -68,12 +71,16 @@ apiRoutes.get( '/tokenValid', tokenValid ) ;
 apiRoutes.post( '/screen/next', upload.array(), insertScreenMessage ) ;
 apiRoutes.get( '/screen/first', upload.array(), getNextScreen ) ;
 apiRoutes.get( '/screen/mine', getMyScreen ) ;
+apiRoutes.get( '/screen/info', apiScreenInfo  ) ;
 apiRoutes.get( '/screen/:id(\\d+)', getSpecificScreenMessage ) ;
 
 
 
 app.get( '/seance', requestListSeances );
+app.get( '/token', getSeanceToMonitor ) ;
 app.post('/register', upload.array(), register ) ;
+
+
 
 app.use('/api', apiRoutes);
 app.use( '/vote', checkAuthentication, getVotePage )
@@ -231,13 +238,8 @@ function renderVotePage2( requete, reponse, data ) {
 //================================================================
 //Screen result 
 //================================================================
-function getScreenResult( requete, reponse ) {
-	getAllInfoSeance( requete, reponse, getScreenInfo )
-}
-function getScreenInfo( requete, reponse, data ){
-	requete._data = data
-	var seanceId = requete.decoded.participation.seance_id 
-	, sql = "SELECT message_id, screentype.description, rowname.position as rowPosition, columnname.position as colPosition  ,  count(*) as count \
+var sqlGetScreenInfo =
+"SELECT message_id, screentype.description, rowname.position as row_position, columnname.position as column_position  ,  count(*) as count \
 FROM screen \
 JOIN screentype on screentype_id = screentype.id \
 JOIN message on message_id = message.id \
@@ -246,7 +248,14 @@ JOIN rowname on row_id = rowname.id \
 JOIN participation on message.participation_id = participation.id  \
 WHERE participation.seance_id = ? \
 GROUP BY message_id, screentype.id ;"
-	mesartimBd_pooled_query(requete, sql, seanceId, wrapProcess( renderScreenResult, printAndSkip, requete, reponse ) )
+
+function getScreenResult( requete, reponse ) {
+	getAllInfoSeance( requete, reponse, getScreenInfo )
+}
+function getScreenInfo( requete, reponse, data ){
+	requete._data = data
+	var seanceId = requete.decoded.participation.seance_id 
+	mesartimBd_pooled_query(requete, sqlGetScreenInfo, seanceId, wrapProcess( renderScreenResult, printAndSkip, requete, reponse ) )
 }
 
 function renderScreenResult( requete, reponse, data ) {
@@ -256,8 +265,13 @@ function renderScreenResult( requete, reponse, data ) {
 	data2.baseName = "grille"
 	reponse.render( "screenResult", data2 ) ;
 }
-
-
+function apiScreenInfo( requete, reponse ) {
+	var seanceId = requete.decoded.participation.seance_id 
+	mesartimBd_pooled_query(requete, sqlGetScreenInfo, seanceId, wrapProcess( jsonScreenResult, printAndSkip, requete, reponse ) )
+}
+function jsonScreenResult( requete, reponse, data ) {
+	reponse.json( { success: true, screenInfo : data }) 
+}
 
 //================================================================
 //SEANCE
@@ -283,7 +297,7 @@ function getSeanceToMonitor( requete, reponse ) {
 				},
 				"participation": {
 					"user_id": 0,
-					"seance_id": 4, //TODO find the current seance Id 
+					"seance_id": requete.params.id || requete.query.seanceId || 0 ,
 					"id": 0
 				}
 			}
@@ -500,9 +514,11 @@ function getSpecificScreenMessage( requete, reponse  ) {
 }
 function getNextScreen( requete, reponse ) {
 //Get the message id and description of the next message to be screened by the current participant
-	var sql= "select message.id as id , message.text as description" + "\n"
+	var sql= "select message.id as id , message.text as description, columnname.title as colname, rowname.title as rowname " + "\n"
 	+ "from screen" + "\n"
 	+ "right join message on message.id = message_id" + "\n"
+	+ "join rowname on message.row_id = rowname.id "
+	+ "join columnname on message.column_id = columnname.id "
 	+ "where  message.participation_id != ?" + "\n"
 	+ "group by message.id" + "\n"
 	+ "having message.id not in ( select message_id from screen where participation_id = ? )" + "\n"
@@ -698,8 +714,6 @@ function processGetAllInfoSeance( requete, reponse, callback, data ) {
 
 
 
-
-
 //register 
 function register( requete, reponse ) {
 	//Test if user exist 
@@ -715,9 +729,12 @@ function register( requete, reponse ) {
   requete.user.motivation = requete.body.motivation
   requete.user.implantation = requete.body.implantation
   requete.user.sex = requete.body.sex
-
-    if( requete.body.adhesion != undefined && typeof requete.body.adhesion.join == "function"  && typeof requete.user.adhesion != "string")
-		requete.user.adhesion  =  requete.body.adhesion.join(",")
+	// requete.user.adhesion  =  requete.body.adhesion
+  // if( requete.body.adhesion != undefined && typeof requete.body.adhesion.join == "function" )
+	// 	requete.user.adhesion  =  requete.body.adhesion.join(",")
+	// else if( typeof requete.body.adhesion != "string")
+	
+	
 	
 	/**CLEAN UP : code dégueulasse **/
 	console.log( requete.user )

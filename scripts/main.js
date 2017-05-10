@@ -58,7 +58,7 @@ function mainFunction (io, mdl, util, ui) {
   //ALL 
 	$(".button-collapse").sideNav();
   if( page == "admin" ) {
-    visualisation.loadData() ;
+		visualisation.loadData() ;
   }
 	if( page == "screen" ) {
 		screen.init() ;
@@ -86,11 +86,14 @@ function mainFunction (io, mdl, util, ui) {
 			$("form.vote").submit( voteIdea ) ;
 			$("input.mesarthimSlider").mesartimSlider() 
 			restoreVote() 
-		} else if ( page = "rank") {
+		} else if ( page == "rank") {
 			addVoteValue()
 			$("input.mesarthimSlider").mesartimSlider() 
 			$(".ideas").mesartimSortable(".criteriaSorter")
 			
+		} else if ( page == "screenResult") {
+			console.log( "ScreenResult" ) 
+			getScreenInfo();
 		}
 
 	}
@@ -285,6 +288,57 @@ function mainFunction (io, mdl, util, ui) {
 						 since : since }
 					 , processGetOwnIdea ) ;
 	}
+
+	function getScreenInfo( ) {
+		$.get( "api/screen/info", processScreen ) 
+	}
+	function processScreen( res ) {
+		letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"
+		if( res.success ) {
+			console.log( res.screenInfo )
+
+			messages = {}
+			cases = {}
+			for( var item of res.screenInfo ) {
+				if( !messages[ item.message_id ] ) {
+					messages[ item.message_id ] = { row : item.row_position, column : item.column_position, screen : {} }
+				}
+				message = 	messages[ item.message_id ] 
+				if( message.screen[ item.description ] === undefined ) message.screen[ item.description ] =0
+				message.screen[ item.description ] +=  item.count
+			}
+
+			for( var i in messages ) {
+				var message = messages[i]
+				var max = -100
+				var desc = "none"
+				for( var j in message.screen ) {
+					if( message.screen[ j ] >= max ) {
+						desc = j
+						max = message.screen[j]
+					}
+				}
+				var pos =  message.row +"_"+message.column 
+				grilleElement = $("#grille_label_"+pos )
+
+				grilleElement.data( desc , ( grilleElement.data( desc ) || 0 ) + 1 )
+				var text = ""
+				for( var t of ["vote", "discuss"] ) {
+					
+					text += t + ": " +   (grilleElement.data( t )||0) + "<br>"
+					if( message.screen[t] > 0 ) {
+						$idea = $("#idea_"+i + " ." + t)
+						$idea.addClass("active")
+						$idea.find("span:last-child").text( message.screen[ t ] )
+					}
+				}
+				grilleElement.html( text )
+
+				
+			}
+		}
+	}
+
 	function processGetOwnIdea( res ) { 
 		letters = "ABCDFGHIJKLMNOPQRSTUVWXYZ"  
 		if( res.success ) {
@@ -293,7 +347,6 @@ function mainFunction (io, mdl, util, ui) {
 			for( var i = 0 ; i < res.result.length ; i++ ) {
 				var item = res.result[i]
 				, newBadge = $("<span class='mesartimNew'>").text("new") 
-
 				ownIdea.prepend( 
 					$("<li>" )
 						.addClass("collection-item row mesartimIdeaList valign-wrapper") 

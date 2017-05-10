@@ -17,12 +17,15 @@ function mainFunction($) {
 			screen.currentId = reponse.message.id
 			$( "#messageId" ).text( reponse.message.id )
 			$( "#messageText" ).text( reponse.message.description )
+			$( "#messageCategory" ).text( reponse.message.colname + "/" + reponse.message.rowname  )			
+		} else if ( reponse.success == "done" ) {
+			$( "#doneMessage" ).text( "You have screened all the ideas. Thank you!" ) 
 		}
 	}
 	//Submit what option the user choose for the message
 	function submitOption() {
 		if( screen.currentId ) {
-			
+
 			$.post( "/api/screen/next"
 							, { id : screen.currentId
 									, value : $(this).data( "value" ) 
@@ -45,15 +48,17 @@ function mainFunction($) {
 			$span.click( reloadSpecificScreen ) ;
 		}
 		//Change color and append last
+		$span.removeClass(colorRemover ) ;
 		$span.addClass(" color_" + value ) ;
 		$( "#previousScreen" ).append( $span ) 
 
 	
 	}
-	
+	function colorRemover (index, className) {
+		return (className.match (/(^|\s)color_\d+/g) || []).join(' ');
+	};
 	function loadPreviousScreen( reponse ) {
 		if( reponse.success ) {
-
 			for( var i in reponse.screen ) {
 				var screenElement = reponse.screen[i]
 				addScreenElement( screenElement.id, screenElement.value ) ; 

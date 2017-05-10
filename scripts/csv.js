@@ -60,6 +60,7 @@ function($, date_format, Papa) {
 				 , motivation : user.motivation
 				 , diplome : user.lastDiploma
 				 , organisation : user.entreprise
+				 , organism : user.organism
 				 , "séance" : info.title
 				 , "nombre idées proposées" : 0
 				 , "message ids" : []

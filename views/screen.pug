@@ -3,6 +3,9 @@ block content
   .row
     .col.s12.m9
       .row
+        i Catégories : 
+        span.ideaText.valign#messageCategory
+      .row
         .mesartimIdeaList.valign-wrapper
           i#messageId 
           span.ideaText.valign#messageText Loading message....
@@ -15,7 +18,9 @@ block content
             button.option.waves-effect.waves-light.btn-large( style="width:100%", data-value=type.id, class="color_"+type.id)= type.description 
       .row
         .col.s12
-          button.option.waves-effect.waves-light.btn-large.col.s12.color_0 skip
+          button.option.waves-effect.waves-light.btn-large.col.s12.color_0( data-value=0 ) skip
+      .row
+        h5.col.s12.center-align#doneMessage
     .col.s12.m3.z-depth-1.flex#previousScreen
 
  

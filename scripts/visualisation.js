@@ -1,7 +1,7 @@
 define( ["d3", 'jquery', "date_format", "util"], 
 function(d3, $, date_format) {
 	window.d3 = d3 ;
-
+	if( d3 === undefined ) { return console.warn ( "error loading d3, reload " )}
 
 
 	function ConsolidatedVote () {}
@@ -423,8 +423,12 @@ _consolidatedMessage.message_text = ""
 	}
 
 
-	//Coloration 
-	var colorScheme10 = d3.schemeCategory20;
+	//Coloration
+	try {
+		var colorScheme10 = d3.schemeCategory20;
+	} catch( e ) {
+		var colorScheme10 = ["red"]
+	}
 	//either take directly the message id or an object that has a message_id attribut
 	function valueInColorScheme( index, colorScheme ) {
 		index = index || 0 

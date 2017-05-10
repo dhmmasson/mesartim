@@ -6,33 +6,16 @@ block content
       .row.z-depth-1
         include table.pug
       .row
-        ul.collapsible( data-collapsible="accordion")
+        ul.collection( data-collapsible="accordion")
           each idea in ideas
-            li.idea(class="col_"+idea.column_position, class="row_"+idea.row_position)
-              .collapsible-header.truncate
+            li.idea(id="idea_"+idea.id, class="col_"+idea.column_position, class="row_"+idea.row_position)
+              .collection-item.truncate
                 i= idea.id 
                 span(title=idea.text).ideaTitle=  idea.text               
-                i.right.material-icons.interested.z-depth-1 grade
-                i.right.material-icons.voted.z-depth-1 done
-                //- span.chip.right=  columnNames[idea.column]
-                //- span.chip.right=  rowNames[idea.line]
-              form.collapsible-body.vote(id="vote_"+idea.id, data-message_id=idea.id)
-                .col.s12
-                  .row
-                    .input-field.col.s12
-                      span= idea.text               
-                  each criterion, criteriaId in criteria||{originalite:"Originalité", faisabilité:"Faisabilité"}
-                    if criterion.type == "numeric"
-                      .row
-                        .range-field.col.s12.noIndication
-                          label=criterion.description
-                          input.mesarthimSlider( type="range", min="0", max="100", value=0, name!="criteria_"+criterion.id+"" id="idea_"+idea.id+"_criteria_"+criterion.id)
-                  .row.input-field
-                    .switch
-                      label.col.s6.m9 I am interested : I'd like to be informed of any follow up concerning this idea
-                        input( type="checkbox", name="criteria_0" value=1 id="idea_"+idea.id+"_criteria_0")
-                        span.lever
-                  .row
-                    button.btn.waves-light.waves-effect.col.s6.offset-s6.m3.offset-m9( type="submit", name="action")
-                      i.material-icons.right playlist_add
-                      span Submit evaluation
+                i.right.discuss.z-depth-1 
+                  span.material-icons chat 
+                  span _
+                i.right.vote.z-depth-1 
+                  span.material-icons thumbs_up_down
+                  span _
+
