@@ -218,9 +218,9 @@ function mainFunction (io, mdl, util, ui) {
 
 
 	function changeTitle( rowName, columnName ){
-		var titre = "Category selected : "+ rowName + "/" + columnName 
+		var titre = "Catégorie sélectionnée : "+ rowName + "/" + columnName 
 		$("#sectionSelectionTitle").text( titre )
-		titre = "Add Idea to category : " + rowName+ "/" + columnName
+		titre = "Ajoutez une idée à la catégorie : " + rowName+ "/" + columnName
 		$("#addIdeaTitle")
 			.text( titre )
 			.attr("title", titre )
@@ -254,7 +254,7 @@ function mainFunction (io, mdl, util, ui) {
 	function setIdeaSubmissionOk() {
 		$('#submitIdea').prop("disabled", false )
 		$('#submitIdea').find('i').text("playlist_add")
-		$('#submitIdea').find('span').text("Submit your idea")
+		$('#submitIdea').find('span').text("Soumettre mon idée")
 	}
 
 

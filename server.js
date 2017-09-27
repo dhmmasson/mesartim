@@ -17,16 +17,33 @@ var express = require('express')
   , mesartimBd = mysql.createPool( config.database )
   , morgan = require('morgan') //debug tool   
   , fs = require('fs')
-
-
+  , model = require("./server_scripts/model._base")
+  , Router = require( "./server_scripts/Router" )
+  , apiRoutesV2 = require( "./server_scripts/api._base" )   //Route for every ajax request
+	, authenticationEngine = require('./server_scripts/auth0.config')
+, googleToken = require('./googleApi/googleToken') 
 //================================================================
 //configurations 
 //================================================================
+console.log( config )
 
+//Hot Fix
+
+config.sql = config.database 
+config.jwt = { secret : config.secret }
+config.Auth0 = { public : { domain :"ideavaluation.estia.fr", client_id : "123", callbackURL : "ideavaluation.estia.fr" }, private : { client_secret : config.secret } }
+
+
+model( config )
+	.then( initializeApp )
+	.catch( message => console.log( "init error: " + message ) ) ;
+
+
+		
 
 
 app.use( morgan( 'common' ) );
-app.use( cookieParser() )
+app.use( cookieParser( config.secret ) )
 app.use( bodyParser.json() ); // for parsing application/json
 app.use( bodyParser.urlencoded({ extended: true }) ); // for parsing application/x-www-form-urlencoded
 app.use( express.static( '.' ) );
@@ -42,57 +59,70 @@ http.listen( config.port, successListen );
 //================================================================
 var apiRoutes = express.Router(); 
 
-apiRoutes.use( checkAuthentication ) ; 
-
-apiRoutes.get( '/seance/list', requestListSeances );
-apiRoutes.get( '/seance/:id/token', getSeanceToMonitor ) ; 
-
-apiRoutes.get( '/seance/:id/participants', getParticipantsBySeance ) ;
-apiRoutes.get( '/seance/:id/messages', getMessagesBySeance ) ;
-apiRoutes.get( '/seance/:id(\\d+)/title', getSeanceTitle ) ;
-apiRoutes.get( '/seance/monitor', getSeanceToMonitor ) ;
-apiRoutes.get( '/seance/names', getSeanceNames ) ;
+function initializeApp( model ) {
+	model.authentication = authenticationEngine( config ) ;	
+	console.log( "init app" ) ; 
+	app.use( "/api", 
+		upload.array(),
+		apiRoutesV2( model ) ) ;
 
 
 
-apiRoutes.post( '/message/new', upload.array(), addMessage ) ;
-apiRoutes.post( '/message/:id/annotate',  upload.array(), annotateMessage );
-apiRoutes.get(  '/message/id/:id', getMessageById );
-apiRoutes.get(  '/message/mine', getAllMessageFromUser );
-apiRoutes.get(  '/message/all', proxyGetAllMessageFromSeance );
-apiRoutes.get(  '/message/count/:team?/:interval(\\d+|beginning)?', getMessageCountByTeam ) ;
+	apiRoutes.use( checkAuthentication ) ; 
 
+	apiRoutes.get( '/seance/list', requestListSeances );
+	apiRoutes.get( '/seance/:id/token', getSeanceToMonitor ) ; 
 
-apiRoutes.get( '/annotations/all', getAnnotations ) ;
-apiRoutes.get( '/annotations/mine', getAnnotationsFromUser ) ;
+	apiRoutes.get( '/googleToken', getGoogleToken ) ;
 
-apiRoutes.get( '/tokenValid', tokenValid ) ;
-
-apiRoutes.post( '/screen/next', upload.array(), insertScreenMessage ) ;
-apiRoutes.get( '/screen/first', upload.array(), getNextScreen ) ;
-apiRoutes.get( '/screen/mine', getMyScreen ) ;
-apiRoutes.get( '/screen/info', apiScreenInfo  ) ;
-apiRoutes.get( '/screen/:id(\\d+)', getSpecificScreenMessage ) ;
+	apiRoutes.get( '/seance/:id/participants', getParticipantsBySeance ) ;
+	apiRoutes.get( '/seance/:id/messages', getMessagesBySeance ) ;
+	apiRoutes.get( '/seance/:id(\\d+)/title', getSeanceTitle ) ;
+	apiRoutes.get( '/seance/monitor', getSeanceToMonitor ) ;
+	apiRoutes.get( '/seance/names', getSeanceNames ) ;
 
 
 
-app.get( '/seance', requestListSeances );
-app.get( '/token', getSeanceToMonitor ) ;
-app.post('/register', upload.array(), register ) ;
+	apiRoutes.post( '/message/new', upload.array(), addMessage ) ;
+	apiRoutes.post( '/message/:id/annotate',  upload.array(), annotateMessage );
+	apiRoutes.get(  '/message/id/:id', getMessageById );
+	apiRoutes.get(  '/message/mine', getAllMessageFromUser );
+	apiRoutes.get(  '/message/all', proxyGetAllMessageFromSeance );
+	apiRoutes.get(  '/message/count/:team?/:interval(\\d+|beginning)?', getMessageCountByTeam ) ;
+
+
+	apiRoutes.get( '/annotations/all', getAnnotations ) ;
+	apiRoutes.get( '/annotations/mine', getAnnotationsFromUser ) ;
+
+	apiRoutes.get( '/tokenValid', tokenValid ) ;
+
+	apiRoutes.post( '/screen/next', upload.array(), insertScreenMessage ) ;
+	apiRoutes.get( '/screen/first', upload.array(), getNextScreen ) ;
+	apiRoutes.get( '/screen/mine', getMyScreen ) ;
+	apiRoutes.get( '/screen/info', apiScreenInfo  ) ;
+	apiRoutes.get( '/screen/:id(\\d+)', getSpecificScreenMessage ) ;
 
 
 
-app.use('/api', apiRoutes);
-app.use( '/vote', checkAuthentication, getVotePage )
-app.use( '/generation', checkAuthentication, getSubmissionPage )
-app.use( '/login', getLogin )
-app.use( '/rank', checkAuthentication, getRankPage ) ;
-app.use( '/screen', checkAuthentication, getScreen ) ;
-app.use( '/screenResult', checkAuthentication, getScreenResult) ; 
-app.use( '/admin', checkAuthentication, getAdminPage ) ; 
+	app.get( '/seance', requestListSeances );
+	app.get( '/token', getSeanceToMonitor ) ;
+	app.post('/register', upload.array(), register ) ;
 
-app.use( '/', getLogin )
 
+
+	app.use('/api', apiRoutes);
+	app.use( '/vote', checkAuthentication, getVotePage )
+	app.use( '/generation', checkAuthentication, getSubmissionPage )
+	app.use( '/login', getLogin )
+	app.use( '/rank', checkAuthentication, getRankPage ) ;
+	app.use( '/screen', checkAuthentication, getScreen ) ;
+	app.use( '/screenResult', checkAuthentication, getScreenResult) ; 
+	app.use( '/admin', checkAuthentication, getAdminPage ) ; 
+
+	app.use( '/', getLogin )
+		
+
+}
 var compteur = 0
 mesartimBd.on('connection', function (connection) {
   console.log( "connection to database", ++compteur ) ; 
@@ -197,8 +227,14 @@ function processGetSubmissionPage( requete, reponse, columnNames, rowNames ) {
 
 }
 
-
-
+//===============================================================
+//Get token
+//===============================================================
+function getGoogleToken( requete, reponse ) {
+	googleToken()
+		.then( token => reponse.json( { success : "true", token : token }))
+		.catch( e => reponse.json( { sucess : false, error : e }) )
+}
 
 //================================================================
 //Get Rank page
@@ -853,6 +889,7 @@ function callBackMySqlConnexion (err){
 
 
 function checkAuthentication(requete, reponse, next) {
+	console.log( "hello authentication" ) 
   // check header or url parameters or post parameters for token
   var token = requete.body.token || requete.query.token || requete.headers['x-access-token'] || requete.cookies.token;
   requete.token = token ; 
