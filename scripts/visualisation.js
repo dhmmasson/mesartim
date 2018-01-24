@@ -557,14 +557,14 @@ _consolidatedMessage.message_text = ""
 	visualisation.render = function() {
 		root=$("#tables")
 
-		root.append( createTable( this.messages, "TOP 5: the most ORIGINAL ideas   (on average)", 1, "criteria_average" )  )
+	/*	root.append( createTable( this.messages, "TOP 5: the most ORIGINAL ideas   (on average)", 1, "criteria_average" )  )
 		root.append( createTable( this.messages, "TOP 5: the most FEASIBLE ideas    (on average)", 2, "criteria_average" )  )
 		root.append( createTable( this.messages, "TOP 5: the most POTENTIAL ideas   (on average)", 3, "criteria_average" )  )
 		root.append( createTable( this.messages, "TOP 5: the most INTERESTING ideas (number of interests)", 0, "criteria_count" )  )
 		root.append( createTable( this.messages, "TOP 5: the most divergent ideas in terms of ORIGINALITY (on average)", 1, "criteria_stddev" )  )
 		root.append( createTable( this.messages, "TOP 5: the most divergent ideas in terms of FEASIBILITY (on average)", 2, "criteria_stddev" )  )
 		root.append( createTable( this.messages, "TOP 5: the most divergent ideas in terms of POTENTIALITY (on average)", 3, "criteria_stddev" )  )
-
+*/
 		sessionAvg = [0,0,0,0]
 
 		for( var i in this.messages ) {
