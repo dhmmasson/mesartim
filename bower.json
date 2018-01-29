@@ -23,6 +23,7 @@
     "jquery-ui": "jqueryui#^1.11.4",
     "d3": "^4.2.6",
     "date_format": "^1.0.0",
-    "date-format": "*"
+    "date-format": "*",
+    "tablesorter": "*"
   }
 }

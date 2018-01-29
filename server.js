@@ -828,7 +828,7 @@ function processNewParticapation( requete, reponse, result ){
 								, { expiresIn: "8d" // expires in 24 hours    
 								} ) ;
 	reponse.cookie( 'token', token );
-	reponse.redirect('/vote')
+	reponse.redirect('/generation')
 
 }
 //List séances 
