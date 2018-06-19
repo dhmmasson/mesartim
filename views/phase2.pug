@@ -19,7 +19,7 @@ block content
 								.col.s12
 									.row
 										.input-field.col.s12
-											//span= idea.text /désactiver car texte illisible et redondant								
+											span(style="color:black")= idea.text								
 									each criterion, criteriaId in criteria||{originalite:"Originalité", faisabilité:"Faisabilité"}
 										if criterion.type == "numeric"
 											.row
@@ -28,7 +28,7 @@ block content
 													input.mesarthimSlider( type="range", min="0", max="100", value=0, name!="criteria_"+criterion.id+"" id="idea_"+idea.id+"_criteria_"+criterion.id)
 									.row.input-field
 										.switch
-											label.col.s6.m9 J'aime !    Cliquez ici :
+											label.col.s6.m9 I am interested : I'd like to be informed of any follow up concerning this idea. I click here :
 												input( type="checkbox", name="criteria_0" value=1 id="idea_"+idea.id+"_criteria_0")
 												span.lever
 									.row
