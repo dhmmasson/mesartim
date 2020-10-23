@@ -1,35 +1,42 @@
+const sass = require('node-sass');
 module.exports = function(grunt) {
   grunt.initConfig(
   { sass: {
       dist: {
-        files: 
+        files:
         { 'css/ideaValuation.css': 'sass/ideaValuation.scss'
        // , 'css/materialize.css': 'sass/materialize.scss'
         }
+      },
+      options: {
+        implementation: sass,
+        outputStyle: 'expanded',
+        sourceMap: true,
+        quiet: true // stop depreciation errors
       }
     }
-  , copy: 
-    { materializeFont : 
+  , copy:
+    { materializeFont :
       { files: [ { expand: true
                  , cwd: 'bower_components/Materialize/font/'
                  , src: ['**']
                  , dest: 'fonts/'} ]
       }
-    , materializeSassFiles: 
+    , materializeSassFiles:
       { files: [ { expand: true
                  , cwd: 'bower_components/Materialize/sass/'
                  , src: ['**']
                  , dest: 'sass/'} ]
-      , options: 
+      , options:
         { process: function (content, srcpath) {
-          if( srcpath.match("materialize.scss")) { 
-            console.log("copy materialize.scss" ); 
+          if( srcpath.match("materialize.scss")) {
+            console.log("copy materialize.scss" );
             return content.replace('@import "components/variables";', '@import "ideaValuationVariables";\n@import "components/variables";');
           }
-          return content 
+          return content
         } }
-      
-      }   
+
+      }
     }
 });
   grunt.loadNpmTasks('grunt-sass');
