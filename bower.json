@@ -20,7 +20,7 @@
     "jquery": "^2.2.1",
     "requirejs": "^2.1.22",
     "Materialize": "materialize#^0.97.5",
-    "jquery-ui": "jqueryui#~1.11.4",
+
     "d3": "^4.2.6",
     "date_format": "^1.0.0",
     "date-format": "*",
